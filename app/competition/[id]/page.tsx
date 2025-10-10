@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   mockCompetitions,
@@ -34,9 +34,9 @@ import { BookingDialog } from "@/components/booking-dialog";
 export default function CompetitionPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = React.use(params);
   const competition = mockCompetitions.find((c) => c.id === id);
   const { isAuthenticated, login, user } = useAuth();
 
