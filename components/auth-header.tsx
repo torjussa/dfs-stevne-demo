@@ -39,6 +39,17 @@ export function AuthHeader() {
           <User className="h-4 w-4 mr-2" />
           {user?.email}
         </DropdownMenuItem>
+        <DropdownMenuItem disabled>
+          <div className="ml-6 text-sm">
+            Klasse: <span className="font-semibold">{user?.baseClass}</span>
+            {user?.classes && user.classes.length > 1 && (
+              <span className="text-muted-foreground">
+                {" "}
+                + {user.classes.filter((c) => c !== user.baseClass).join(", ")}
+              </span>
+            )}
+          </div>
+        </DropdownMenuItem>
         {user?.isAdmin && (
           <DropdownMenuItem asChild>
             <Link href="/admin">

@@ -1,5 +1,4 @@
 import { CompetitionCard } from "@/components/competition-card";
-import { CompetitionFilters } from "@/components/competition-filters";
 import { AuthHeader } from "@/components/auth-header";
 import { mockCompetitions } from "@/lib/mock-data";
 
@@ -15,33 +14,17 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-[280px_1fr] gap-8">
-          {/* Sidebar with filters */}
-          <aside className="space-y-6">
-            <div className="bg-card border border-border/50 rounded-lg p-6">
-              <h2 className="font-semibold text-lg mb-4">Filtrer stevner</h2>
-              <CompetitionFilters />
-            </div>
-          </aside>
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="mb-6">
+          <p className="text-muted-foreground">
+            Viser {mockCompetitions.length} stevner
+          </p>
+        </div>
 
-          {/* Main content */}
-          <main>
-            <div className="mb-6">
-              <p className="text-muted-foreground">
-                Viser {mockCompetitions.length} stevner
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6">
-              {mockCompetitions.map((competition) => (
-                <CompetitionCard
-                  key={competition.id}
-                  competition={competition}
-                />
-              ))}
-            </div>
-          </main>
+        <div className="grid grid-cols-1 gap-6">
+          {mockCompetitions.map((competition) => (
+            <CompetitionCard key={competition.id} competition={competition} />
+          ))}
         </div>
       </div>
     </div>

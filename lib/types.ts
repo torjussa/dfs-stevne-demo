@@ -28,6 +28,7 @@ export interface TimeSlot {
   isBooked: boolean;
   bookedBy?: string;
   bookedByName?: string;
+  bookedByClass?: string;
   allowedClasses?: string[];
   isLocked?: boolean;
 }

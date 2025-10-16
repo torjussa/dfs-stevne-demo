@@ -48,6 +48,7 @@ export default function CompetitionPage({
   } | null>(null);
   const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
   const [expandedTimes, setExpandedTimes] = useState<Set<string>>(new Set());
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
   // Mobile-specific UI removed – only desktop behavior remains
 
   useEffect(() => {
@@ -97,14 +98,20 @@ export default function CompetitionPage({
   const handleBooking = (
     targetId: string,
     slotId: string,
-    userName: string
+    userName: string,
+    userClass: string
   ) => {
     setBookings((prev) => {
       const next = new Map(prev);
       const targetSlots = next.get(targetId) || [];
       const updatedSlots = targetSlots.map((slot) =>
         slot.id === slotId
-          ? { ...slot, isBooked: true, bookedByName: userName }
+          ? {
+              ...slot,
+              isBooked: true,
+              bookedByName: userName,
+              bookedByClass: userClass,
+            }
           : slot
       );
       next.set(targetId, updatedSlots);
@@ -113,7 +120,7 @@ export default function CompetitionPage({
     setSelectedSlot(null);
   };
 
-  const handleMultiBooking = (userName: string) => {
+  const handleMultiBooking = (userName: string, userClass: string) => {
     setBookings((prev) => {
       const next = new Map(prev);
       selectedSlots.forEach((slotKey) => {
@@ -121,7 +128,12 @@ export default function CompetitionPage({
         const targetSlots = next.get(targetId) || [];
         const updatedSlots = targetSlots.map((slot) =>
           slot.id === slotId
-            ? { ...slot, isBooked: true, bookedByName: userName }
+            ? {
+                ...slot,
+                isBooked: true,
+                bookedByName: userName,
+                bookedByClass: userClass,
+              }
             : slot
         );
         next.set(targetId, updatedSlots);
@@ -154,9 +166,7 @@ export default function CompetitionPage({
   const sortedDates = competition
     ? generateDateRange(competition.startDate, competition.endDate)
     : [];
-  const columnPx = 320;
-  const visibleCols = Math.min(3, sortedDates.length || 1);
-  const desktopViewportWidth = columnPx * visibleCols;
+  const columnPx = 420;
   const totalSlotsCount = Array.from(bookings.values()).reduce(
     (sum, slots) => sum + slots.length,
     0
@@ -206,7 +216,7 @@ export default function CompetitionPage({
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card sticky top-0 z-10 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-4 max-w-[1600px]">
           <div className="flex items-center justify-between mb-3">
             <Button variant="ghost" size="sm" asChild className="gap-2">
               <Link href="/">
@@ -216,70 +226,51 @@ export default function CompetitionPage({
             </Button>
             <AuthHeader />
           </div>
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold text-balance">
-              {competition.name}
-            </h1>
-            <p className="text-muted-foreground">
-              Arrangør: {competition.location}
-            </p>
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+            <div className="space-y-1">
+              <h1 className="text-2xl lg:text-3xl font-bold text-balance">
+                {competition.name}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Arrangør: {competition.location}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 lg:gap-4">
+              <div className="flex items-center gap-2 bg-muted/30 px-3 py-2 rounded-md">
+                <Calendar className="h-4 w-4 text-primary" />
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground">Dato</span>
+                  <span className="text-sm font-semibold">
+                    {formatDate(competition.startDate, competition.endDate)}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-muted/30 px-3 py-2 rounded-md">
+                <Clock className="h-4 w-4 text-primary" />
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground">Tid</span>
+                  <span className="text-sm font-semibold">
+                    {competition.startTime} - {competition.endTime}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-muted/30 px-3 py-2 rounded-md">
+                <Target className="h-4 w-4 text-primary" />
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground">
+                    Tilgjengelig
+                  </span>
+                  <span className="text-sm font-semibold">
+                    {userAvailableForEvent} av {totalSlotsCount}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Calendar className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Dato</p>
-                  <p className="font-semibold text-pretty">
-                    {formatDate(competition.startDate, competition.endDate)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Clock className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Tid</p>
-                  <p className="font-semibold">
-                    {competition.startTime} - {competition.endTime}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Target className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    Tilgjengelig
-                  </p>
-                  <p className="font-semibold">
-                    {userAvailableForEvent} av {totalSlotsCount} plasser
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
+      <div className="container mx-auto px-4 py-8 max-w-[1600px]">
         {!isAuthenticated && (
           <Card className="mb-8 border-primary bg-primary/5">
             <CardContent className="p-6">
@@ -301,29 +292,54 @@ export default function CompetitionPage({
         )}
 
         <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-            <div>
-              <h2 className="text-2xl font-bold mb-1">Tidspunkt og skiver</h2>
-              <p className="text-muted-foreground">
-                Klikk på en rad for å utvide og se detaljer
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-emerald-50 border border-emerald-200" />
-                <span>Ledig</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-secondary border border-border" />
-                <span>Reservert</span>
-              </div>
-            </div>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold mb-1">Tidspunkt og skiver</h2>
+            <p className="text-muted-foreground">
+              Klikk på en rad for å utvide og se detaljer
+            </p>
           </div>
+
+          <Card className="border-primary/20 bg-primary/5 mb-6">
+            <CardContent className="p-4">
+              <div className="flex items-start gap-3">
+                <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold mb-2">Informasjon</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {isInfoExpanded ? (
+                      <>
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        Sed do eiusmod tempor incididunt ut labore et dolore
+                        magna aliqua. Ut enim ad minim veniam, quis nostrud
+                        exercitation ullamco laboris nisi ut aliquip ex ea
+                        commodo consequat. Duis aute irure dolor in
+                        reprehenderit in voluptate velit esse cillum dolore eu
+                        fugiat nulla pariatur.
+                        <br />
+                        <br />
+                        Excepteur sint occaecat cupidatat non proident, sunt in
+                        culpa qui officia deserunt mollit anim id est laborum.
+                        Sed ut perspiciatis unde omnis iste natus error sit
+                        voluptatem accusantium doloremque laudantium.
+                      </>
+                    ) : (
+                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua..."
+                    )}
+                  </p>
+                  <button
+                    onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+                    className="text-sm text-primary hover:underline mt-2 font-medium"
+                  >
+                    {isInfoExpanded ? "Vis mindre" : "Les mer"}
+                  </button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Day columns with per-day collapsible time rows (desktop only) */}
           <div className="overflow-x-auto">
-            <div style={{ width: `${desktopViewportWidth}px` }}>
+            <div className="flex justify-center">
               <div
                 className="grid gap-6"
                 style={{
@@ -338,7 +354,7 @@ export default function CompetitionPage({
                   });
                   return (
                     <div key={date} className="min-w-[320px]">
-                      <h3 className="px-4 py-3 border-b bg-muted/30 text-lg">
+                      <h3 className="px-4 py-3 bg-muted/30 text-lg">
                         {dateLabel.substring(0, 1).toUpperCase() +
                           dateLabel.substring(1)}
                       </h3>
@@ -444,6 +460,9 @@ export default function CompetitionPage({
                                           <th className="px-4 py-3 text-left text-sm font-medium">
                                             Navn
                                           </th>
+                                          <th className="px-4 py-3 text-left text-sm font-medium w-24">
+                                            Klasse
+                                          </th>
                                           <th className="px-4 py-3 text-right text-sm font-medium w-40">
                                             Status
                                           </th>
@@ -493,6 +512,18 @@ export default function CompetitionPage({
                                                   slot.bookedByName ? (
                                                     <span className="text-sm">
                                                       {slot.bookedByName}
+                                                    </span>
+                                                  ) : (
+                                                    <span className="text-sm text-muted-foreground">
+                                                      -
+                                                    </span>
+                                                  )}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                  {slot.isBooked &&
+                                                  slot.bookedByClass ? (
+                                                    <span className="text-sm font-medium">
+                                                      {slot.bookedByClass}
                                                     </span>
                                                   ) : (
                                                     <span className="text-sm text-muted-foreground">
@@ -600,14 +631,15 @@ export default function CompetitionPage({
         <BookingDialog
           open={!!selectedSlot}
           onOpenChange={(open) => !open && setSelectedSlot(null)}
-          onConfirm={(userName) => {
+          onConfirm={(userName, userClass) => {
             if (selectedSlot.targetId === "multi") {
-              handleMultiBooking(userName);
+              handleMultiBooking(userName, userClass);
             } else {
               handleBooking(
                 selectedSlot.targetId,
                 selectedSlot.slotId,
-                userName
+                userName,
+                userClass
               );
             }
           }}

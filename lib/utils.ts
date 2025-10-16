@@ -35,16 +35,14 @@ export function getAllowedClassesForTime(
     (acc, ch) => acc + ch.charCodeAt(0),
     0
   );
-  // Choose between a few presets
-  const presets: string[][] = [
-    ["1", "2", "3", "4", "5"],
-    ["R", "J", "EJ"],
-    ["NU", "ER", "R", "J", "EJ"],
-    ["v55", "v65", "v75"],
-    ["JEG"],
-    ["HK416"],
-    ["Å"],
-    ["KIK"],
-  ];
-  return presets[seed % presets.length];
+
+  // 95% of times are available to all classes (return undefined)
+  // 5% have restrictions
+  if (seed % 20 !== 0) {
+    return undefined; // Available to all classes
+  }
+
+  // For the remaining 5%, apply restrictions to special classes
+  const restrictedPresets: string[][] = [["JEG"], ["HK416"], ["Å"], ["KIK"]];
+  return restrictedPresets[seed % restrictedPresets.length];
 }

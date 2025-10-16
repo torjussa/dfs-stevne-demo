@@ -1,5 +1,9 @@
 import type { Competition, Target, TimeSlot } from "./types";
-import { getAllowedClassesForTime } from "./utils";
+import {
+  getAllowedClassesForTime,
+  BASE_CLASSES,
+  SPECIAL_CLASSES,
+} from "./utils";
 
 // Helpers to compute totalSlots = floor(days * hours * targetCount * (60/slotDuration))
 function calcDays(startDate: string, endDate: string): number {
@@ -50,7 +54,7 @@ export const mockCompetitions: Competition[] = [
       45
     ),
     status: "open",
-    classes: ["Rekrutt 11-13år", "HK416", "Jegerklassen"],
+    classes: ["R", "HK416", "JEG"],
   },
   {
     id: "5",
@@ -71,11 +75,11 @@ export const mockCompetitions: Competition[] = [
       60
     ),
     status: "open",
-    classes: ["Rekrutt 11-13år", "HK416", "Jegerklassen"],
+    classes: ["R", "HK416", "JEG"],
   },
   {
     id: "6",
-    name: "VM - Cup Runde 3",
+    name: "Onsdagstreff",
     location: "Fiska Skyttarlag",
     startDate: "2026-10-10",
     endDate: "2026-10-10",
@@ -113,7 +117,7 @@ export const mockCompetitions: Competition[] = [
       35
     ),
     status: "open",
-    classes: ["3", "4", "5", "EJ", "Junior", "V45"],
+    classes: ["3", "4", "5", "EJ", "J", "v55"],
   },
   {
     id: "9",
@@ -185,13 +189,17 @@ export const generateTimeSlots = (
       "Joakim Eriksen",
       "Ole Petter Hansen",
     ];
+    const allClasses = [...BASE_CLASSES, ...SPECIAL_CLASSES];
     const randomName =
       bookingNames[Math.floor(Math.random() * bookingNames.length)];
+    const randomClass =
+      allClasses[Math.floor(Math.random() * allClasses.length)];
     const bookedByName = isBooked
       ? Math.random() < 0.1
         ? "anonym"
         : randomName
       : undefined;
+    const bookedByClass = isBooked ? randomClass : undefined;
 
     slots.push({
       id: `${targetId}-slot-${slotIndex}${date ? `-${date}` : ""}`,
@@ -200,6 +208,7 @@ export const generateTimeSlots = (
       date: date ?? new Date().toISOString().slice(0, 10),
       isBooked,
       bookedByName,
+      bookedByClass,
       // class restrictions are per time (computed from date+time)
       allowedClasses: getAllowedClassesForTime(
         timeString,
