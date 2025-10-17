@@ -72,7 +72,7 @@ const initialDateTo = "2025-11-19";
 
 export default function Proposal1Page() {
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 4;
+  const totalSteps = 3;
 
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [copiedEvent, setCopiedEvent] = useState<string | null>(null);
