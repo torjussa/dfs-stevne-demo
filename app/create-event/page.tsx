@@ -20,7 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Save, Check, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Save,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PreviousEvents } from "@/components/createEvent/PreviousEvents";
 import { EVENT_TEMPLATES, Templates } from "@/components/createEvent/Templates";
@@ -65,6 +71,9 @@ const initialDateFrom = "2025-11-18";
 const initialDateTo = "2025-11-19";
 
 export default function Proposal1Page() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 4;
+
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [copiedEvent, setCopiedEvent] = useState<string | null>(null);
   const [eventName, setEventName] = useState("");
@@ -121,6 +130,18 @@ export default function Proposal1Page() {
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
+  const goToNextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const goToPreviousStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -167,16 +188,8 @@ export default function Proposal1Page() {
 
           {(selectedTemplate || copiedEvent) && (
             <Card className="border-2 border-primary/20 ">
-              <CardHeader className="bg-primary/5 py-4">
-                <CardTitle>Stevnedetaljer</CardTitle>
-                <CardDescription>
-                  {copiedEvent
-                    ? "Justér informasjonen fra det kopierte stevnet"
-                    : "Fyll inn detaljer - mange felt er forhåndsutfylt basert på malen"}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Basic Info */}
+              {/* Basic Info */}
+              {currentStep === 1 && (
                 <EventInformation
                   eventName={eventName}
                   setEventName={setEventName}
@@ -187,35 +200,46 @@ export default function Proposal1Page() {
                   copiedEvent={copiedEvent}
                   setSelectedTemplate={setSelectedTemplate}
                 />
-                <EventSettings />
+              )}
+              {currentStep === 2 && <EventSettings />}
+              {currentStep === 3 && (
+                <Discipline
+                  eventDays={eventDays}
+                  selectedTemplate={selectedTemplate}
+                  dayConfigs={dayConfigs}
+                  setDayConfigs={setDayConfigs}
+                  selectedDay={selectedDay}
+                  setSelectedDay={setSelectedDay}
+                />
+              )}
 
-                {eventDays.length > 0 && (
-                  <Discipline
-                    eventDays={eventDays}
-                    selectedTemplate={selectedTemplate}
-                    dayConfigs={dayConfigs}
-                    setDayConfigs={setDayConfigs}
-                    selectedDay={selectedDay}
-                    setSelectedDay={setSelectedDay}
-                  />
-                )}
-
-                <div className="flex items-center justify-between border-t pt-6 pb-4">
-                  <p className="text-sm text-muted-foreground">
+              <div className="flex items-center justify-between border-t pt-6 p-4">
+                {/* <p className="text-sm text-muted-foreground">
                     <span className="text-destructive">*</span> Obligatoriske
                     felt
-                  </p>
-                  <div className="flex gap-2">
+                  </p> */}
+                <Button
+                  onClick={() => {
+                    setSelectedTemplate(null);
+                    setCopiedEvent(null);
+                  }}
+                  variant="ghost"
+                  size="lg"
+                >
+                  Avbryt
+                </Button>
+                <div className="flex gap-2">
+                  {currentStep !== 1 && (
                     <Button
-                      onClick={() => {
-                        setSelectedTemplate(null);
-                        setCopiedEvent(null);
-                      }}
-                      variant="ghost"
+                      variant="outline"
                       size="lg"
+                      onClick={goToPreviousStep}
                     >
-                      Avbryt
+                      <ChevronLeft className="mr-2 h-4 w-4" />
+                      Tilbake
                     </Button>
+                  )}
+                  {currentStep === totalSteps ? (
                     <Button
                       size="lg"
                       onClick={handleSave}
@@ -233,9 +257,18 @@ export default function Proposal1Page() {
                         </>
                       )}
                     </Button>
-                  </div>
+                  ) : (
+                    <Button
+                      size="lg"
+                      onClick={goToNextStep}
+                      /*  disabled={!canProceedToStep2} */
+                    >
+                      Neste
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-              </CardContent>
+              </div>
             </Card>
           )}
 
