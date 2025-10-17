@@ -35,7 +35,7 @@ type Props = {
 };
 export const PreviousEvents = ({ copiedEvent, handleCopyEvent }: Props) => {
   return (
-    <Card className="border-2 border-secondary/50 bg-secondary/5 py-4">
+    <Card className="border-2 border-secondary/50 py-4">
       <CardHeader>
         <div className="flex items-center gap-2">
           <Copy className="h-5 w-5 text-secondary" />

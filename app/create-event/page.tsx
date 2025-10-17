@@ -26,6 +26,8 @@ import { PreviousEvents } from "@/components/createEvent/PreviousEvents";
 import { EVENT_TEMPLATES, Templates } from "@/components/createEvent/Templates";
 import { ClassesSelect } from "@/components/createEvent/ClassesSelect";
 import { Discipline } from "@/components/createEvent/Discipline";
+import { EventSettings } from "@/components/createEvent/EventSettings";
+import { EventInformation } from "@/components/createEvent/EventInformation";
 
 export type Exercise = {
   id: string;
@@ -75,7 +77,7 @@ export default function Proposal1Page() {
       exercises: [],
     }))
   );
-  const [selectedDay, setSelectedDay] = useState<string>("");
+  const [selectedDay, setSelectedDay] = useState<string>(initialDateFrom);
   const [sameSetupAllDays, setSameSetupAllDays] = useState(false);
 
   const eventDays = getDaysBetween(dateFrom, dateTo);
@@ -131,7 +133,6 @@ export default function Proposal1Page() {
                 Tilbake til oversikt
               </Link>
             </Button>
-            <Badge variant="secondary">Forslag 1: Hurtigopprettelse</Badge>
           </div>
         </div>
       </header>
@@ -149,16 +150,20 @@ export default function Proposal1Page() {
 
         <div className="mx-auto max-w-5xl space-y-6">
           {/* Copy from previous event */}
-          <PreviousEvents
-            copiedEvent={copiedEvent}
-            handleCopyEvent={handleCopyEvent}
-          />
+          {!(selectedTemplate || copiedEvent) && (
+            <PreviousEvents
+              copiedEvent={copiedEvent}
+              handleCopyEvent={handleCopyEvent}
+            />
+          )}
 
           {/* Template selection */}
-          <Templates
-            selectedTemplate={selectedTemplate}
-            handleTemplateSelect={handleTemplateSelect}
-          />
+          {!(selectedTemplate || copiedEvent) && (
+            <Templates
+              selectedTemplate={selectedTemplate}
+              handleTemplateSelect={handleTemplateSelect}
+            />
+          )}
 
           {(selectedTemplate || copiedEvent) && (
             <Card className="border-2 border-primary/20 ">
@@ -172,109 +177,17 @@ export default function Proposal1Page() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Basic Info */}
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="eventName">
-                      Stevnenavn <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="eventName"
-                      placeholder="F.eks. Oktoberstevnet innendørs"
-                      value={eventName}
-                      onChange={(e) => setEventName(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="organizer">
-                      Arrangør <span className="text-destructive">*</span>
-                    </Label>
-                    <Select defaultValue="bæker">
-                      <SelectTrigger id="organizer">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bæker">Bæker Skytterlag</SelectItem>
-                        <SelectItem value="oslo">Oslo Skytterlag</SelectItem>
-                        <SelectItem value="bergen">
-                          Bergen Skytterlag
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Sted</Label>
-                    <Input
-                      id="location"
-                      placeholder="Anleggsnavn"
-                      defaultValue="Bæker Skyteanlegg"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="dateFrom">
-                      Fra dato <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="dateFrom"
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => handleDateChange(e.target.value, dateTo)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="dateTo">
-                      Til dato <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="dateTo"
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) =>
-                        handleDateChange(dateFrom, e.target.value)
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="eventType">
-                      Stevnetype <span className="text-destructive">*</span>
-                    </Label>
-                    <Select
-                      value={selectedTemplate || ""}
-                      onValueChange={setSelectedTemplate}
-                    >
-                      <SelectTrigger id="eventType">
-                        <SelectValue placeholder="Velg type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(EVENT_TEMPLATES).map(
-                          ([key, template]) => (
-                            <SelectItem key={key} value={key}>
-                              {template.name}
-                            </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Beskrivelse</Label>
-                  <Textarea
-                    id="description"
-                    placeholder="Legg til informasjon om stevnet..."
-                    rows={3}
-                    defaultValue={
-                      copiedEvent
-                        ? "Årlig innendørs stevne for alle klasser"
-                        : ""
-                    }
-                  />
-                </div>
+                <EventInformation
+                  eventName={eventName}
+                  setEventName={setEventName}
+                  dateFrom={dateFrom}
+                  dateTo={dateTo}
+                  handleDateChange={handleDateChange}
+                  selectedTemplate={selectedTemplate}
+                  copiedEvent={copiedEvent}
+                  setSelectedTemplate={setSelectedTemplate}
+                />
+                <EventSettings />
 
                 {eventDays.length > 0 && (
                   <Discipline
@@ -287,26 +200,40 @@ export default function Proposal1Page() {
                   />
                 )}
 
-                <ClassesSelect selectedTemplate={selectedTemplate} />
-
                 <div className="flex items-center justify-between border-t pt-6 pb-4">
                   <p className="text-sm text-muted-foreground">
                     <span className="text-destructive">*</span> Obligatoriske
                     felt
                   </p>
-                  <Button size="lg" onClick={handleSave} disabled={!eventName}>
-                    {showSuccess ? (
-                      <>
-                        <Check className="mr-2 h-4 w-4" />
-                        Stevne opprettet!
-                      </>
-                    ) : (
-                      <>
-                        <Save className="mr-2 h-4 w-4" />
-                        Opprett stevne
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => {
+                        setSelectedTemplate(null);
+                        setCopiedEvent(null);
+                      }}
+                      variant="ghost"
+                      size="lg"
+                    >
+                      Avbryt
+                    </Button>
+                    <Button
+                      size="lg"
+                      onClick={handleSave}
+                      disabled={!eventName}
+                    >
+                      {showSuccess ? (
+                        <>
+                          <Check className="mr-2 h-4 w-4" />
+                          Stevne opprettet!
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Opprett stevne
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,6 +15,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DayConfig, Exercise } from "@/app/create-event/page";
 import { EVENT_TEMPLATES } from "./Templates";
 import { PreviewSlots } from "./PreviewSlots";
+import { useEffect } from "react";
 
 type Props = {
   eventDays: string[];
@@ -33,7 +34,7 @@ export const Discipline = ({
   selectedDay,
   setSelectedDay,
 }: Props) => {
-  const addExercise = () => {
+  const addExercise = (date: string) => {
     const newExercise: Exercise = {
       id: `ex-${Date.now()}`,
       name: "Ny øvelse",
@@ -53,7 +54,7 @@ export const Discipline = ({
 
     setDayConfigs((prev) =>
       prev.map((config) =>
-        config.date === selectedDay
+        config.date === date
           ? { ...config, exercises: [...config.exercises, newExercise] }
           : config
       )
@@ -188,99 +189,99 @@ export const Discipline = ({
             </Button>
           )} */}
       </div>
-
-      {currentDayConfig?.exercises.map((exercise, idx) => (
-        <div key={exercise.id}>
-          <CardHeader className="pb-3 flex items-start justify-between">
-            <div className="flex-1 space-y-3">
-              <div className="grid gap-3 md:grid-cols-2">
-                <div className="space-y-1">
-                  <Label className="text-xs">Øvelsesnavn</Label>
-                  <Input
-                    value={exercise.name}
-                    onChange={(e) =>
-                      updateExercise(exercise.id, "name", e.target.value)
-                    }
-                    placeholder="F.eks. Bane 100m"
-                  />
+      <div className="flex flex-col gap-4">
+        {dayConfigs[0].exercises.map((exercise, idx) => (
+          <div key={exercise.id}>
+            <div className="pb-3 flex items-start justify-between">
+              <div className="flex-1 space-y-3">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Øvelsesnavn</Label>
+                    <Input
+                      value={exercise.name}
+                      onChange={(e) =>
+                        updateExercise(exercise.id, "name", e.target.value)
+                      }
+                      placeholder="F.eks. Bane 100m"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Bane</Label>
+                    <Select
+                      value={exercise.range}
+                      onValueChange={(val) =>
+                        updateExercise(exercise.id, "range", val)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Bane 1">Bane 1</SelectItem>
+                        <SelectItem value="Bane 2">Bane 2</SelectItem>
+                        <SelectItem value="Bane 3">Bane 3</SelectItem>
+                        <SelectItem value="Innendørs">Innendørs</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Bane</Label>
-                  <Select
-                    value={exercise.range}
-                    onValueChange={(val) =>
-                      updateExercise(exercise.id, "range", val)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Bane 1">Bane 1</SelectItem>
-                      <SelectItem value="Bane 2">Bane 2</SelectItem>
-                      <SelectItem value="Bane 3">Bane 3</SelectItem>
-                      <SelectItem value="Innendørs">Innendørs</SelectItem>
-                    </SelectContent>
-                  </Select>
+
+                <div className="grid gap-3 md:grid-cols-4">
+                  <div className="space-y-1">
+                    <Label className="text-xs">Første lag</Label>
+                    <Input
+                      type="time"
+                      value={exercise.startTime}
+                      onChange={(e) =>
+                        updateExercise(exercise.id, "startTime", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Intervall (min)</Label>
+                    <Input
+                      type="number"
+                      value={exercise.interval}
+                      onChange={(e) =>
+                        updateExercise(
+                          exercise.id,
+                          "interval",
+                          Number.parseInt(e.target.value)
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Antall lag</Label>
+                    <Input
+                      type="number"
+                      value={exercise.numSquads}
+                      onChange={(e) =>
+                        updateExercise(
+                          exercise.id,
+                          "numSquads",
+                          Number.parseInt(e.target.value)
+                        )
+                      }
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs">Kapasitet</Label>
+                    <Input
+                      type="number"
+                      value={exercise.capacity}
+                      onChange={(e) =>
+                        updateExercise(
+                          exercise.id,
+                          "capacity",
+                          Number.parseInt(e.target.value)
+                        )
+                      }
+                    />
+                  </div>
                 </div>
               </div>
-
-              <div className="grid gap-3 md:grid-cols-4">
-                <div className="space-y-1">
-                  <Label className="text-xs">Første lag</Label>
-                  <Input
-                    type="time"
-                    value={exercise.startTime}
-                    onChange={(e) =>
-                      updateExercise(exercise.id, "startTime", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Intervall (min)</Label>
-                  <Input
-                    type="number"
-                    value={exercise.interval}
-                    onChange={(e) =>
-                      updateExercise(
-                        exercise.id,
-                        "interval",
-                        Number.parseInt(e.target.value)
-                      )
-                    }
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Antall lag</Label>
-                  <Input
-                    type="number"
-                    value={exercise.numSquads}
-                    onChange={(e) =>
-                      updateExercise(
-                        exercise.id,
-                        "numSquads",
-                        Number.parseInt(e.target.value)
-                      )
-                    }
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Kapasitet</Label>
-                  <Input
-                    type="number"
-                    value={exercise.capacity}
-                    onChange={(e) =>
-                      updateExercise(
-                        exercise.id,
-                        "capacity",
-                        Number.parseInt(e.target.value)
-                      )
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-            {/*  <div className="ml-4 flex gap-2">
+              {/*  <div className="ml-4 flex gap-2">
               {eventDays.length > 1 && (
                 <Select
                   onValueChange={(day) => copyExerciseToDay(exercise.id, day)}
@@ -312,152 +313,153 @@ export const Discipline = ({
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div> */}
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {exercise.breaks.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-xs">Pauser</Label>
-                {exercise.breaks.map((breakItem) => (
-                  <div key={breakItem.id} className="flex items-center gap-2">
-                    <Coffee className="h-4 w-4 text-muted-foreground" />
-                    <Input
-                      className="flex-1"
-                      placeholder="Pausenavn"
-                      value={breakItem.label}
-                      onChange={(e) => {
-                        setDayConfigs((prev) =>
-                          prev.map((config) =>
-                            config.date === selectedDay
-                              ? {
-                                  ...config,
-                                  exercises: config.exercises.map((ex) =>
-                                    ex.id === exercise.id
-                                      ? {
-                                          ...ex,
-                                          breaks: ex.breaks.map((b) =>
-                                            b.id === breakItem.id
-                                              ? {
-                                                  ...b,
-                                                  label: e.target.value,
-                                                }
-                                              : b
-                                          ),
-                                        }
-                                      : ex
-                                  ),
-                                }
-                              : config
-                          )
-                        );
-                      }}
-                    />
-                    <Input
-                      type="number"
-                      className="w-24"
-                      placeholder="Etter lag"
-                      value={breakItem.afterSquad}
-                      onChange={(e) => {
-                        setDayConfigs((prev) =>
-                          prev.map((config) =>
-                            config.date === selectedDay
-                              ? {
-                                  ...config,
-                                  exercises: config.exercises.map((ex) =>
-                                    ex.id === exercise.id
-                                      ? {
-                                          ...ex,
-                                          breaks: ex.breaks.map((b) =>
-                                            b.id === breakItem.id
-                                              ? {
-                                                  ...b,
-                                                  afterSquad: Number.parseInt(
-                                                    e.target.value
-                                                  ),
-                                                }
-                                              : b
-                                          ),
-                                        }
-                                      : ex
-                                  ),
-                                }
-                              : config
-                          )
-                        );
-                      }}
-                    />
-                    <Input
-                      type="number"
-                      className="w-24"
-                      placeholder="Minutter"
-                      value={breakItem.duration}
-                      onChange={(e) => {
-                        setDayConfigs((prev) =>
-                          prev.map((config) =>
-                            config.date === selectedDay
-                              ? {
-                                  ...config,
-                                  exercises: config.exercises.map((ex) =>
-                                    ex.id === exercise.id
-                                      ? {
-                                          ...ex,
-                                          breaks: ex.breaks.map((b) =>
-                                            b.id === breakItem.id
-                                              ? {
-                                                  ...b,
-                                                  duration: Number.parseInt(
-                                                    e.target.value
-                                                  ),
-                                                }
-                                              : b
-                                          ),
-                                        }
-                                      : ex
-                                  ),
-                                }
-                              : config
-                          )
-                        );
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeBreak(exercise.id, breakItem.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => addBreak(exercise.id)}
-            >
-              <Coffee className="mr-2 h-4 w-4" />
-              Legg til pause
-            </Button>
-
-            <div className="rounded-md bg-background p-3">
-              <p className="mb-2 text-sm font-medium">
-                Forhåndsvisning av tidspunkter:
-              </p>
-              <PreviewSlots exercise={exercise} eventDays={eventDays} />
             </div>
-          </CardContent>
-        </div>
-      ))}
+            <div className="space-y-3">
+              {exercise.breaks.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-xs">Pauser</Label>
+                  {exercise.breaks.map((breakItem) => (
+                    <div key={breakItem.id} className="flex items-center gap-2">
+                      <Coffee className="h-4 w-4 text-muted-foreground" />
+                      <Input
+                        className="flex-1"
+                        placeholder="Pausenavn"
+                        value={breakItem.label}
+                        onChange={(e) => {
+                          setDayConfigs((prev) =>
+                            prev.map((config) =>
+                              config.date === selectedDay
+                                ? {
+                                    ...config,
+                                    exercises: config.exercises.map((ex) =>
+                                      ex.id === exercise.id
+                                        ? {
+                                            ...ex,
+                                            breaks: ex.breaks.map((b) =>
+                                              b.id === breakItem.id
+                                                ? {
+                                                    ...b,
+                                                    label: e.target.value,
+                                                  }
+                                                : b
+                                            ),
+                                          }
+                                        : ex
+                                    ),
+                                  }
+                                : config
+                            )
+                          );
+                        }}
+                      />
+                      <Input
+                        type="number"
+                        className="w-24"
+                        placeholder="Etter lag"
+                        value={breakItem.afterSquad}
+                        onChange={(e) => {
+                          setDayConfigs((prev) =>
+                            prev.map((config) =>
+                              config.date === selectedDay
+                                ? {
+                                    ...config,
+                                    exercises: config.exercises.map((ex) =>
+                                      ex.id === exercise.id
+                                        ? {
+                                            ...ex,
+                                            breaks: ex.breaks.map((b) =>
+                                              b.id === breakItem.id
+                                                ? {
+                                                    ...b,
+                                                    afterSquad: Number.parseInt(
+                                                      e.target.value
+                                                    ),
+                                                  }
+                                                : b
+                                            ),
+                                          }
+                                        : ex
+                                    ),
+                                  }
+                                : config
+                            )
+                          );
+                        }}
+                      />
+                      <Input
+                        type="number"
+                        className="w-24"
+                        placeholder="Minutter"
+                        value={breakItem.duration}
+                        onChange={(e) => {
+                          setDayConfigs((prev) =>
+                            prev.map((config) =>
+                              config.date === selectedDay
+                                ? {
+                                    ...config,
+                                    exercises: config.exercises.map((ex) =>
+                                      ex.id === exercise.id
+                                        ? {
+                                            ...ex,
+                                            breaks: ex.breaks.map((b) =>
+                                              b.id === breakItem.id
+                                                ? {
+                                                    ...b,
+                                                    duration: Number.parseInt(
+                                                      e.target.value
+                                                    ),
+                                                  }
+                                                : b
+                                            ),
+                                          }
+                                        : ex
+                                    ),
+                                  }
+                                : config
+                            )
+                          );
+                        }}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeBreak(exercise.id, breakItem.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-      {/* <Button
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => addBreak(exercise.id)}
+              >
+                <Coffee className="mr-2 h-4 w-4" />
+                Legg til pause
+              </Button>
+
+              <div className="rounded-md bg-background p-3">
+                <p className="mb-2 text-sm font-medium">
+                  Forhåndsvisning av tidspunkter:
+                </p>
+                <PreviewSlots exercise={exercise} eventDays={eventDays} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Button
         variant="outline"
-        className="w-full bg-transparent"
-        onClick={addExercise}
+        className="w-full bg-transparent mt-4"
+        onClick={() => addExercise(selectedDay)}
       >
         <Plus className="mr-2 h-4 w-4" />
         Legg til øvelse
-      </Button> */}
+      </Button>
     </div>
   );
 };

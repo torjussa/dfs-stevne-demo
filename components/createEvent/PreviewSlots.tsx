@@ -69,8 +69,8 @@ export const PreviewSlots = ({ exercise, eventDays }: Props) => {
               month: "short",
             });
             return (
-              <div key={date} className="min-w-[320px]">
-                <h3 className="px-4 py-3 bg-muted/30 text-lg">
+              <div key={date} className="min-w-[200px]">
+                <h3 className="px-3 py-2 bg-muted/30 text-md">
                   {dateLabel.substring(0, 1).toUpperCase() +
                     dateLabel.substring(1)}
                 </h3>
@@ -81,7 +81,7 @@ export const PreviewSlots = ({ exercise, eventDays }: Props) => {
                       className={"overflow-hidden transition-all"}
                     >
                       <div
-                        className={`w-full cursor-pointer px-6 transition-colors py-3 flex items-center justify-between ${"bg-primary hover:bg-primary/90 text-primary-foreground"}`}
+                        className={`w-full cursor-pointer px-4 transition-colors py-2 flex items-center justify-between ${"bg-primary hover:bg-primary/90 text-primary-foreground"}`}
                       >
                         <div className="flex justify-between w-full gap-3">
                           <p>

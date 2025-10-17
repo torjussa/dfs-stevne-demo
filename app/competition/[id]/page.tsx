@@ -120,6 +120,27 @@ export default function CompetitionPage({
     setSelectedSlot(null);
   };
 
+  console.log(bookings);
+
+  const handleUnbook = (targetId: string, slotId: string) => {
+    setBookings((prev) => {
+      const next = new Map(prev);
+      const targetSlots = next.get(targetId) || [];
+      const updatedSlots = targetSlots.map((slot) =>
+        slot.id === slotId
+          ? {
+              ...slot,
+              isBooked: false,
+              bookedByName: undefined,
+              bookedByClass: undefined,
+            }
+          : slot
+      );
+      next.set(targetId, updatedSlots);
+      return next;
+    });
+  };
+
   const handleMultiBooking = (userName: string, userClass: string) => {
     setBookings((prev) => {
       const next = new Map(prev);
@@ -493,6 +514,9 @@ export default function CompetitionPage({
                                                 slot.allowedClasses.some((c) =>
                                                   userClasses.includes(c)
                                                 ));
+
+                                            const isBookedByUser =
+                                              slot.bookedByName === user?.name;
                                             return (
                                               <tr
                                                 key={slot.id}
@@ -534,12 +558,27 @@ export default function CompetitionPage({
                                                 <td className="px-4 py-3 text-right">
                                                   <div className="flex items-center justify-end gap-2">
                                                     {slot.isBooked ? (
-                                                      <Badge
-                                                        variant="secondary"
-                                                        className="bg-secondary text-foreground/80 border-border"
-                                                      >
-                                                        Reservert
-                                                      </Badge>
+                                                      isBookedByUser ? (
+                                                        <Button
+                                                          size="sm"
+                                                          variant="destructive"
+                                                          onClick={() =>
+                                                            handleUnbook(
+                                                              slot.targetId,
+                                                              slot.id
+                                                            )
+                                                          }
+                                                        >
+                                                          Meld av
+                                                        </Button>
+                                                      ) : (
+                                                        <Badge
+                                                          variant="secondary"
+                                                          className="bg-secondary text-foreground/80 border-border"
+                                                        >
+                                                          Reservert
+                                                        </Badge>
+                                                      )
                                                     ) : slot.isLocked ? (
                                                       <HoverCard>
                                                         <HoverCardTrigger
