@@ -82,7 +82,7 @@ export const EventSettings = () => {
             <div className="grid gap-4 rounded-lg border bg-primary/5 p-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="feeSenior" className="text-sm">
-                  Senior/Veteran
+                  Senior
                 </Label>
                 <div className="relative">
                   <Input
@@ -118,7 +118,7 @@ export const EventSettings = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="feeForest" className="text-sm">
-                  Skogsløp
+                  Veteran
                 </Label>
                 <div className="relative">
                   <Input
