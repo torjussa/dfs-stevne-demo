@@ -5,7 +5,16 @@ import type React from "react";
 import { useMemo, useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { SPECIAL_CLASSES, BASE_CLASSES } from "@/lib/utils";
-import { Calendar, MapPin, Target, Clock, User } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Target,
+  Clock,
+  User,
+  CreditCard,
+  FileText,
+  Check,
+} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +53,8 @@ export function BookingDialog({
   );
   const [reserveForFriend, setReserveForFriend] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   // Friends with their shooting classes
   const friendsData = useMemo(
@@ -93,12 +104,44 @@ export function BookingDialog({
       ? selectedFriend
       : user?.name || "Ukjent";
 
+  const handlePayment = async (paymentMethod: string) => {
+    if (
+      displayName === "Ukjent" ||
+      (reserveForFriend && !selectedFriend) ||
+      !selectedClass
+    ) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Mock 1 second loading
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    setIsLoading(false);
+    setIsSuccess(true);
+
+    // After showing success, close dialog and confirm booking after 2 seconds
+    setTimeout(() => {
+      onConfirm(displayName, selectedClass);
+      onOpenChange(false);
+      // Reset states
+      setIsSuccess(false);
+      setIsLoading(false);
+    }, 2000);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (displayName && displayName !== "Ukjent" && selectedClass) {
-      onConfirm(displayName, selectedClass);
-    }
   };
+
+  // Reset states when dialog opens/closes
+  useEffect(() => {
+    if (!open) {
+      setIsLoading(false);
+      setIsSuccess(false);
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -242,27 +285,99 @@ export function BookingDialog({
             </div>
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="h-11"
-            >
-              Avbryt
-            </Button>
-            <Button
-              type="submit"
-              disabled={
-                displayName === "Ukjent" ||
-                (reserveForFriend && !selectedFriend) ||
-                !selectedClass
-              }
-              className="h-11 font-semibold"
-            >
-              Bekreft reservasjon
-            </Button>
-          </DialogFooter>
+          {isSuccess ? (
+            <div className="flex flex-col items-center justify-center py-8 gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                <Check className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-semibold">Reservasjon bekreftet</h3>
+              <p className="text-sm text-muted-foreground">
+                Din reservasjon er registrert
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3 pt-2">
+                <Button
+                  type="button"
+                  onClick={() => handlePayment("vipps")}
+                  disabled={
+                    isLoading ||
+                    displayName === "Ukjent" ||
+                    (reserveForFriend && !selectedFriend) ||
+                    !selectedClass
+                  }
+                  className="w-full h-12 bg-[#FF5B24] hover:bg-[#FF5B24]/90 text-white font-semibold"
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Behandler...
+                    </span>
+                  ) : (
+                    "Betal med Vipps"
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handlePayment("card")}
+                  disabled={
+                    isLoading ||
+                    displayName === "Ukjent" ||
+                    (reserveForFriend && !selectedFriend) ||
+                    !selectedClass
+                  }
+                  className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Behandler...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <CreditCard className="h-5 w-5" />
+                      Betal med kort
+                    </span>
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => handlePayment("invoice")}
+                  disabled={
+                    isLoading ||
+                    displayName === "Ukjent" ||
+                    (reserveForFriend && !selectedFriend) ||
+                    !selectedClass
+                  }
+                  className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold mb-2"
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Behandler...
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      Bekreft og betal med faktura
+                    </span>
+                  )}
+                </Button>
+              </div>
+              <DialogFooter className="pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isLoading}
+                  className="h-11 w-full"
+                >
+                  Avbryt
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </form>
       </DialogContent>
     </Dialog>
