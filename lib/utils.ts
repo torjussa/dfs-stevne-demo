@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Competition, FilterOptions } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -45,4 +46,73 @@ export function getAllowedClassesForTime(
   // For the remaining 5%, apply restrictions to special classes
   const restrictedPresets: string[][] = [["JEG"], ["HK416"], ["Å"], ["KIK"]];
   return restrictedPresets[seed % restrictedPresets.length];
+}
+
+export function filterCompetitions(
+  competitions: Competition[],
+  filters: FilterOptions
+): Competition[] {
+  return competitions.filter((competition) => {
+    // Search term filter
+    if (filters.searchTerm) {
+      const searchLower = filters.searchTerm.toLowerCase();
+      const matchesSearch =
+        competition.name.toLowerCase().includes(searchLower) ||
+        competition.location.toLowerCase().includes(searchLower) ||
+        competition.organizer.toLowerCase().includes(searchLower) ||
+        competition.description?.toLowerCase().includes(searchLower);
+
+      if (!matchesSearch) return false;
+    }
+
+    // Date range filter
+    if (filters.dateFrom && competition.startDate < filters.dateFrom)
+      return false;
+    if (filters.dateTo && competition.endDate > filters.dateTo) return false;
+
+    // Region filter
+    if (
+      filters.region &&
+      filters.region !== "all" &&
+      competition.region !== filters.region
+    )
+      return false;
+
+    // Competition type filter
+    if (
+      filters.competitionType !== "all" &&
+      competition.type !== filters.competitionType
+    )
+      return false;
+
+    // Class type filter
+    if (
+      filters.classType &&
+      filters.classType !== "all" &&
+      competition.classes &&
+      !competition.classes.includes(filters.classType)
+    )
+      return false;
+
+    // Status filter
+    if (filters.status !== "all" && competition.status !== filters.status)
+      return false;
+
+    // Organizer filter
+    if (filters.organizer) {
+      const organizerLower = filters.organizer.toLowerCase();
+      if (!competition.organizer.toLowerCase().includes(organizerLower))
+        return false;
+    }
+
+    // Event type filter
+    if (
+      filters.eventType &&
+      filters.eventType !== "all" &&
+      competition.eventType !== filters.eventType
+    )
+      return false;
+
+    return true;
+  });
 }

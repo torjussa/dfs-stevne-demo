@@ -48,7 +48,8 @@
 :root {
   --radius: 0.625rem;
   /* Light theme based on screenshot: warm beige background and navy primary */
-  --background: #f4efe9;
+  /* --background: #f4efe9; */
+  --background: #ffffff;
   --foreground: #1e2b44;
   --card: #ffffff;
   --card-foreground: #1e2b44;
@@ -126,4 +127,15 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom markers for map event types */
+.custom-event-marker {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.custom-event-marker .leaflet-div-icon {
+  background: none !important;
+  border: none !important;
 }

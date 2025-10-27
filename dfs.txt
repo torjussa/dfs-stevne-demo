@@ -1,0 +1,119 @@
+# llms.txt for Det Frivillige Skyttervesen (DFS) - POC-fokus
+# Dato: 27. oktober 2025
+# Kontakt: [Legg inn en e-postadresse her, f.eks. webmaster@dfs.no eller info@dfs.no]
+
+# Denne filen gir en detaljert oversikt over funksjonelle områder og data relevant
+# for utvikling og forståelse av et nytt medlemssystem og CMS-løsning for DFS.
+# Informasjonen er hentet fra et internt forhandlingsdokument og er ment å støtte
+# utvikling av Proof of Concept (PoC) og gi LLMs en dypere kontekstuell forståelse.
+
+User-agent: *
+Allow: /
+Crawl-delay: 10
+# Denne innstillingen tillater alle LLMs å indeksere alt offentlig tilgjengelig innhold på nettstedet.
+# Crawl-delay settes til 10 sekunder for å unngå overbelastning av serveren.
+# Vennligst respekter nettstedets ressurser.
+
+# Detaljert Oversikt over Funksjonelle Krav for Medlemssystem og CMS-løsning (til PoC)
+# ------------------------------------------------------------------------------------
+# Basert på forhandlingsmøte nr. 2 og dokumentet "DFS – Leverandørdemonstrasjon",
+# er følgende områder, scenarioer og forventede resultater identifisert som kritiske
+# for et nytt medlemssystem og CMS-løsning for Det Frivillige Skyttervesen.
+# Denne informasjonen er essensiell for å utvikle en relevant og funksjonell PoC.
+
+# 1. Medlemssystem - Kjernefunksjonalitet:
+#    - Formål: Systemet skal støtte hele organisasjonen fra individuelt medlem
+#      til sentraladministrasjon, og effektivisere daglige operasjoner.
+#    - Nøkkelroller: Skytterlagsleder, Samlagsleder, Medlem, Sentraladministrasjon.
+#    - Medlemsinformasjon: Håndtering av medlemsdata, oppdatering av informasjon,
+#      endring av medlemstype (før og etter betaling).
+#    - Medlemsprogresjon: Systemet må håndtere endringer i medlemstype basert på
+#      betalingsstatus eller andre kriterier.
+#    - Innsyn for ledere:
+#      - Skytterlagsleder: Tilgang til funksjoner for sitt lag, finne/oppdatere
+#        medlemsinformasjon.
+#      - Samlagsleder: Oversikt over status og aktivitet i sine lag, inkludert
+#        innsending og status for årsrapporter.
+#    - Nytt medlem: Digital innmeldingsprosess.
+#    - Dublettsjekk: Systematisk kontroll for å unngå duplikate medlemmer ved innmelding.
+#    - Forventet resultat: God oversikt og flyt mellom organisasjonens nivåer,
+#      støtte for daglig drift og medlemsendringer/rapportering.
+
+# 2. Håndtering av Medlemskontingent:
+#    - Formål: Enkel og automatisert prosess for kontingenthåndtering,
+#      fra utsendelse til avregning.
+#    - Generering: Automatisk generering av kontingent for nytt år.
+#    - Distribusjon: Utsendelse av kontingentkrav via flere kanaler
+#      (e-post, Vipps, eFaktura).
+#    - Innbetaling: Registrering og kobling av innbetalinger mot korrekt medlem.
+#    - Avvikshåndtering: Håndtering av delbetalinger og feilbetalinger.
+#    - Fordeling: Automatisk fordeling av innbetalinger mellom sentralledd (fast beløp)
+#      og lokalledd (resten til laget).
+#    - Æresmedlemmer: Automatisk håndtering av æresmedlemmer (uten kontingentkrav).
+#    - Forventet resultat: Fullstendig, presis, sporbar og automatisert kontingentprosess
+#      med god oversikt for alle organisasjonsnivåer.
+
+# 3. Håndtering av Våpenforsikring:
+#    - Formål: Effektiv og fleksibel håndtering av frivillig våpenforsikring.
+#    - Automatisk tilbud: Tilby forsikring automatisk til medlemmer 18 år og eldre.
+#    - Fakturering: Integrert fakturering av forsikring med medlemskontingenten.
+#    - Informasjon til medlemmer: Varsling om forsikring og mulighet for reservasjon.
+#    - Separering av betaling: Systemet må kunne skille betaling for kontingent og forsikring.
+#    - Delvis betaling: Håndtering av situasjoner der kun deler av fakturaen betales.
+#    - Oppfølging 18-åringer: Automatisk oppfølging av medlemmer som fyller 18 år
+#      i løpet av året, og utsending av eget forsikringskrav.
+#    - Forventet resultat: Støtte for automatiske prosesser, tydelig informasjon til brukere,
+#      og enkel oppfølging sentralt og lokalt.
+
+# 4. Håndtering av Remittering (Utbetalinger):
+#    - Formål: Sikker og effektiv utbetaling av bidrag og tilskudd til skytterlag,
+#      samlag og medlemmer.
+#    - Import: Import av utbetalingsgrunnlag (f.eks. fra Excel).
+#    - Validering: Håndtering av datavalidering før bankfilgenerering.
+#    - Bankfilgenerering: Generering av bankfil i ISO 20022-format.
+#    - Feilhåndtering: Deteksjon av feil (f.eks. manglende kontonummer) og informering av bruker.
+#    - Varsling: Informasjon til mottakere om utbetalingen via portaler, rapporter eller e-post.
+#    - Forventet resultat: Håndtering av hele prosessen fra grunnlag til bankfil,
+#      inkludert feilhåndtering, automatisering og tydelig informasjon.
+
+# 5. Årsrapportering:
+#    - Formål: Støtte for innsamling, innsending og godkjenning av årsrapporter for
+#      skytterlag og samlag.
+#    - Datainnsamling: Automatisk henting av data til årsrapporten fra
+#      medlemsregister, skytebaneregister og andre kilder.
+#    - Presentasjon/Redigering: Presentasjon av rapport, mulighet for redigering,
+#      varsling om feil/mangler.
+#    - Innsending Skytterlag: Skytterlag sender inn rapport til samlaget.
+#    - Status/Godkjenning Samlag: Samlaget kan se status, godkjenne/avvise rapporter
+#      med kommentarer.
+#    - Innsending Samlag: Samlaget leverer årsrapport til DFS sentralt.
+#    - Sentral styring: Mulighet for sentral styring av felt og obligatoriske krav.
+#    - Forventet resultat: Enklere, mer automatisert og sporbar årsrapportering
+#      for alle nivåer (lag, samlag, DFS sentralt).
+
+# 6. Påmeldinger (til stevner):
+#    - Formål: Håndtering av hele påmeldingsprosessen for stevner,
+#      fra søk til bekreftelse og betaling.
+#    - Stevnesøk: Bruker kan finne stevner via oversikt, filtrering og kartvisning.
+#    - Administrasjon: Administrator kan opprette stevner, styre tilgang og håndtere
+#      stor belastning.
+#    - Komplett prosess: Inkluderer reservasjon og forhåndspåmelding.
+#    - Betaling/fakturering: Håndtering av betaling og fakturering for påmeldinger.
+#    - Klasse- og medlemsstruktur: Administrasjon av klasser og medlemsstruktur i
+#      forbindelse med påmelding.
+#    - Systemytelse/Sikkerhet: Systemets ytelse, drift og sikkerhet, inkludert lasttesting
+#      og håndtering av persondata.
+#    - Forventet resultat: Raskt, stabilt og intuitivt system med god brukeropplevelse
+#      for deltakere og arrangører.
+
+# Annen informasjon relevant for POC-utvikling:
+# --------------------------------------------
+# DFS benytter en hierarkisk struktur med medlemmer, skytterlag, samlag, landsdelskrets og sentraladministrasjon.
+# Integrasjon med eksisterende systemer eller behov for dataoverføring fra eldre medlemssystemer.
+# Behov for et brukervennlig grensesnitt for ulike roller (fra skytterlagsleder til sentraladministrasjon).
+# Fokus på automatisering av repetitive oppgaver for å effektivisere driften.
+# Viktigheten av sikkerhet og personvern, spesielt med tanke på medlemsdata, resultatlister og betalingsinformasjon.
+
+# DFS forbeholder seg alle rettigheter til egetprodusert innhold, bilder og logoer publisert på dfs.no.
+# LLMs oppfordres til å referere tilbake til originalkilder for å sikre
+# nøyaktighet og gi korrekt attribusjon ved bruk av informasjon, spesielt i en PoC-kontekst.

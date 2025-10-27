@@ -14,15 +14,7 @@ import { AuthHeader } from "@/components/auth-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  ArrowLeft,
-  Calendar,
-  Clock,
-  Target,
-  ChevronDown,
-  ChevronUp,
-  Info,
-} from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Target, Info } from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
@@ -53,26 +45,36 @@ export default function CompetitionPage({
 
   useEffect(() => {
     if (competition) {
-      const targets = generateTargets(competition.id, competition.targetCount);
-      const dates = generateDateRange(
-        competition.startDate,
-        competition.endDate
-      );
-      const bookingsMap = new Map(
-        targets.map((target) => {
-          const allSlots = dates.flatMap((date) =>
-            generateTimeSlots(
-              target.id,
-              competition.startTime,
-              competition.endTime,
-              competition.slotDuration,
-              date
-            )
-          );
-          return [target.id, allSlots] as const;
-        })
-      );
-      setBookings(bookingsMap);
+      // Only generate targets for stevner (competitions)
+      if (
+        competition.eventType === "stevne" &&
+        competition.targetCount &&
+        competition.slotDuration
+      ) {
+        const targets = generateTargets(
+          competition.id,
+          competition.targetCount
+        );
+        const dates = generateDateRange(
+          competition.startDate,
+          competition.endDate
+        );
+        const bookingsMap = new Map(
+          targets.map((target) => {
+            const allSlots = dates.flatMap((date) =>
+              generateTimeSlots(
+                target.id,
+                competition.startTime,
+                competition.endTime,
+                competition.slotDuration!,
+                date
+              )
+            );
+            return [target.id, allSlots] as const;
+          })
+        );
+        setBookings(bookingsMap);
+      }
 
       setExpandedTimes(new Set());
     }
@@ -93,7 +95,10 @@ export default function CompetitionPage({
     );
   }
 
-  const targets = generateTargets(competition.id, competition.targetCount);
+  const targets =
+    competition.eventType === "stevne" && competition.targetCount
+      ? generateTargets(competition.id, competition.targetCount)
+      : [];
 
   const handleBooking = (
     targetId: string,
@@ -294,7 +299,7 @@ export default function CompetitionPage({
       <div className="container mx-auto px-4 py-8 max-w-[1600px]">
         {!isAuthenticated && (
           <Card className="mb-8 border-primary bg-primary/5">
-            <CardContent className="p-6">
+            <CardContent>
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="font-semibold mb-1">
@@ -321,7 +326,7 @@ export default function CompetitionPage({
           </div>
 
           <Card className="border-primary/20 bg-primary/5 mb-6">
-            <CardContent className="p-4">
+            <CardContent>
               <div className="flex items-start gap-3">
                 <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
@@ -435,7 +440,7 @@ export default function CompetitionPage({
                           return (
                             <Card
                               key={key}
-                              className={"overflow-hidden transition-all"}
+                              className={"overflow-hidden transition-all p-0"}
                             >
                               <button
                                 onClick={() => toggleTimeSlot(date, time)}
@@ -470,7 +475,7 @@ export default function CompetitionPage({
                                 </div>
                               </button>
                               {isExpanded && (
-                                <CardContent className="p-0">
+                                <CardContent>
                                   <div className="overflow-x-auto">
                                     <table className="w-full">
                                       <thead>

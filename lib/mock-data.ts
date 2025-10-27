@@ -39,6 +39,8 @@ export const mockCompetitions: Competition[] = [
     id: "3",
     name: "Samlagsstemne Felt Sunnfjord",
     location: "Dale (Sunnfjord)",
+    region: "Vestland",
+    eventType: "stevne",
     startDate: "2025-08-13",
     endDate: "2025-08-15",
     startTime: "09:00",
@@ -55,11 +57,18 @@ export const mockCompetitions: Competition[] = [
     ),
     status: "open",
     classes: ["R", "HK416", "JEG"],
+    type: "outdoor",
+    organizer: "Sunnfjord Skytterlag",
+    description:
+      "Årlig samlagsstemne i felt med alle klasser. Perfekt for både nybegynnere og erfarne skyttere.",
+    coordinates: { lat: 61.3631, lng: 5.4003 },
   },
   {
     id: "5",
     name: "Lørdagsskuddet Toten",
     location: "Toten",
+    region: "Innlandet",
+    eventType: "stevne",
     startDate: "2025-10-11",
     endDate: "2025-10-11",
     startTime: "09:00",
@@ -76,11 +85,18 @@ export const mockCompetitions: Competition[] = [
     ),
     status: "open",
     classes: ["R", "HK416", "JEG"],
+    type: "indoor",
+    organizer: "Toten Skytterlag",
+    description:
+      "Månedlig lørdagsskudd for alle klasser. Hyggelig og uformell atmosfære.",
+    coordinates: { lat: 60.7945, lng: 10.6919 },
   },
   {
     id: "6",
     name: "Onsdagstreff",
     location: "Fiska Skyttarlag",
+    region: "Trøndelag",
+    eventType: "stevne",
     startDate: "2026-10-10",
     endDate: "2026-10-10",
     startTime: "15:00",
@@ -97,11 +113,18 @@ export const mockCompetitions: Competition[] = [
     ),
     status: "open",
     classes: ["3", "4", "5", "EJ"],
+    type: "indoor",
+    organizer: "Fiska Skyttarlag",
+    description:
+      "Ukelig onsdagstreff for alle aldersgrupper. Fokus på teknikk og presisjon.",
+    coordinates: { lat: 63.4305, lng: 10.3951 },
   },
   {
     id: "7",
     name: "VM - Cup Runde 4",
     location: "Fiska Skyttarlag",
+    region: "Trøndelag",
+    eventType: "stevne",
     startDate: "2026-01-10",
     endDate: "2026-01-11",
     startTime: "11:00",
@@ -118,11 +141,18 @@ export const mockCompetitions: Competition[] = [
     ),
     status: "open",
     classes: ["3", "4", "5", "EJ", "J", "v55"],
+    type: "indoor",
+    organizer: "Fiska Skyttarlag",
+    description:
+      "VM-Cup runde 4 med høyt nivå og konkurranse. For erfarne skyttere.",
+    coordinates: { lat: 63.4305, lng: 10.3951 },
   },
   {
     id: "9",
     name: "VM - Cup Runde 3",
     location: "Fiska Skyttarlag",
+    region: "Trøndelag",
+    eventType: "stevne",
     startDate: "2025-10-10",
     endDate: "2025-10-12",
     startTime: "10:00",
@@ -139,6 +169,103 @@ export const mockCompetitions: Competition[] = [
     ),
     status: "open",
     classes: ["3", "4", "5", "EJ"],
+    type: "indoor",
+    organizer: "Fiska Skyttarlag",
+    description:
+      "VM-Cup runde 3 med fokus på presisjon og konsistens. Alle klasser velkommen.",
+    coordinates: { lat: 63.4305, lng: 10.3951 },
+  },
+  // Møter
+  {
+    id: "m1",
+    name: "Årsmøte 2025",
+    location: "DFS Sentral, Oslo",
+    region: "Oslo",
+    eventType: "møte",
+    startDate: "2025-03-15",
+    endDate: "2025-03-15",
+    startTime: "10:00",
+    endTime: "14:00",
+    totalSlots: 50,
+    status: "open",
+    organizer: "DFS Sentral",
+    description:
+      "Årsmøte for alle medlemmer. Velkommen til generalforsamling med valg av nytt styre og vedtektsendringer.",
+    coordinates: { lat: 59.9139, lng: 10.7522 }, // Oslo
+    meetingType: "ordinært",
+    agenda: [
+      "Godkjenning av innkalling",
+      "Valg av møteleder og protokollfører",
+      "Årsberetning",
+      "Regnskap og revisorsberetning",
+      "Valg av nytt styre",
+      "Eventuelt",
+    ],
+  },
+  {
+    id: "m2",
+    name: "Styremøte Sunnfjord",
+    location: "Sunnfjord Skytterlag, Dale",
+    region: "Vestland",
+    eventType: "møte",
+    startDate: "2025-09-02",
+    endDate: "2025-09-02",
+    startTime: "19:00",
+    endTime: "21:00",
+    totalSlots: 12,
+    status: "open",
+    organizer: "Sunnfjord Skytterlag",
+    description:
+      "Månedlig styremøte for å planlegge aktiviteter og gå gjennom økonomi.",
+    coordinates: { lat: 61.3631, lng: 5.4003 }, // Dale, Sunnfjord
+    meetingType: "ordinært",
+    agenda: [
+      "Godkjenning av forrige møteprotokoll",
+      "Økonomirapport",
+      "Planlegging av stevner",
+      "Eventuelt",
+    ],
+  },
+  // Kurs
+  {
+    id: "k1",
+    name: "Sikkerhetskurs for Våpenholdere",
+    location: "Bærum Skytebane",
+    region: "Oslo",
+    eventType: "kurs",
+    startDate: "2025-06-10",
+    endDate: "2025-06-11",
+    startTime: "09:00",
+    endTime: "16:00",
+    totalSlots: 20,
+    status: "open",
+    organizer: "DFS Sentral",
+    description:
+      "Obligatorisk sikkerhetskurs for alle våpenholdere. Kurset dekker våpenbehandling, sikkerhet og lover.",
+    coordinates: { lat: 59.9407, lng: 10.4946 }, // Bærum
+    instructor: "Erik Hansen",
+    prerequisites: ["Gyldig våpenbevis"],
+    maxParticipants: 20,
+  },
+  {
+    id: "k2",
+    name: "Skyteteknikk for Nybegynnere",
+    location: "Toten Skytterlag",
+    region: "Innlandet",
+    eventType: "kurs",
+    startDate: "2025-05-20",
+    endDate: "2025-05-20",
+    startTime: "10:00",
+    endTime: "15:00",
+    totalSlots: 15,
+    status: "open",
+    organizer: "Toten Skytterlag",
+    description:
+      "Intensivkurs i skytingsteknikk for nybegynnere. Lære grunnleggende teknikk og sikkerhet.",
+    coordinates: { lat: 60.7945, lng: 10.6919 }, // Toten
+    instructor: "Anne Larsen",
+    prerequisites: [],
+    maxParticipants: 15,
   },
 ];
 
@@ -176,8 +303,11 @@ export const generateTimeSlots = (
       .toString()
       .padStart(2, "0")}`;
 
-    // Demo booking generation: some booked, ~10% anonymous
-    const isBooked = Math.random() > 0.7;
+    // Demo booking generation: deterministic based on slot details
+    const slotSeed = `${targetId}-${timeString}-${date}`
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const isBooked = slotSeed % 10 > 7; // ~30% booked
     const bookingNames = [
       "Ola Nordmann",
       "Kari Nordmann",
@@ -190,12 +320,10 @@ export const generateTimeSlots = (
       "Ole Petter Hansen",
     ];
     const allClasses = [...BASE_CLASSES, ...SPECIAL_CLASSES];
-    const randomName =
-      bookingNames[Math.floor(Math.random() * bookingNames.length)];
-    const randomClass =
-      allClasses[Math.floor(Math.random() * allClasses.length)];
+    const randomName = bookingNames[slotSeed % bookingNames.length];
+    const randomClass = allClasses[slotSeed % allClasses.length];
     const bookedByName = isBooked
-      ? Math.random() < 0.1
+      ? slotSeed % 10 < 1
         ? "anonym"
         : randomName
       : undefined;
@@ -214,7 +342,7 @@ export const generateTimeSlots = (
         timeString,
         date ?? new Date().toISOString().slice(0, 10)
       ),
-      isLocked: Math.random() > 0.85,
+      isLocked: slotSeed % 20 > 17, // ~15% locked
     });
 
     currentTime += slotDuration;
