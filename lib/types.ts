@@ -64,20 +64,9 @@ export interface TimeSlot {
 export interface Booking {
   id: string;
   competitionId: string;
-  competitionName: string;
   targetId: string;
   timeSlotId: string;
   userName: string;
   userEmail: string;
-  userClass: string;
   bookedAt: string;
-  date: string;
-  time: string;
-  targetNumber: number;
-  location: string;
-  status: "confirmed" | "pending" | "cancelled";
-  paymentMethod?: "vipps" | "card" | "invoice";
-  paymentStatus?: "paid" | "pending" | "failed";
-  invoiceId?: string;
-  price?: number;
 }
