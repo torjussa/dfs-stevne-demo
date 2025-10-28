@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Target, Info } from "lucide-react";
 import { BookingDialog } from "@/components/booking-dialog";
+import { SimpleBookingDialog } from "@/components/simple-booking-dialog";
 import { BookingService } from "@/lib/booking-service";
 // Drawer removed for desktop-only view
 import {
@@ -30,6 +31,7 @@ import {
   FrameHeader,
   FrameTitle,
 } from "@/components/ui/frame";
+import { Users } from "lucide-react";
 
 export default function CompetitionPage({
   params,
@@ -49,6 +51,8 @@ export default function CompetitionPage({
   const [selectedSlots, setSelectedSlots] = useState<Set<string>>(new Set());
   // Expanded state handled by Accordion
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
+  // Simple booking dialog for møte/kurs
+  const [showSimpleBooking, setShowSimpleBooking] = useState(false);
   // Mobile-specific UI removed – only desktop behavior remains
   // Reservation window (10 min) per tidsrad (POC, lokal lagring per bruker)
   const [reservations, setReservations] = useState<Map<string, number>>(
@@ -198,15 +202,20 @@ export default function CompetitionPage({
         competition.id
       );
       persistedBookings.forEach((booking) => {
-        const targetSlots = bookingsMap.get(booking.targetId);
-        if (targetSlots) {
-          const idx = targetSlots.findIndex((s) => s.id === booking.timeSlotId);
-          if (idx !== -1) {
-            targetSlots[idx] = {
-              ...targetSlots[idx],
-              isBooked: true,
-              bookedByName: booking.userName,
-            };
+        // Only update if it's a real booking (has targetId and timeSlotId)
+        if (booking.targetId !== "none" && booking.timeSlotId !== "none") {
+          const targetSlots = bookingsMap.get(booking.targetId);
+          if (targetSlots) {
+            const idx = targetSlots.findIndex(
+              (s) => s.id === booking.timeSlotId
+            );
+            if (idx !== -1) {
+              targetSlots[idx] = {
+                ...targetSlots[idx],
+                isBooked: true,
+                bookedByName: booking.userName,
+              };
+            }
           }
         }
       });
@@ -481,7 +490,8 @@ export default function CompetitionPage({
                     Logg inn for å reservere
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Du må være logget inn for å kunne reservere tidspunkt
+                    Du kan se påmeldingslisten, men må være logget inn for å
+                    reservere
                   </p>
                 </div>
                 <Button size="lg" onClick={login}>
@@ -492,224 +502,376 @@ export default function CompetitionPage({
           </Card>
         )}
 
-        <div className="space-y-3">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold mb-1">Tidspunkt og skiver</h2>
-            <p className="text-muted-foreground">
-              Klikk på en rad for å utvide og se detaljer
-            </p>
-          </div>
-          <Card className="border-primary/20 bg-primary/5 mb-6">
-            <CardContent>
-              <div className="flex items-start gap-3">
-                <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold mb-2">Informasjon</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {isInfoExpanded ? (
-                      <>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Sed do eiusmod tempor incididunt ut labore et dolore
-                        magna aliqua. Ut enim ad minim veniam, quis nostrud
-                        exercitation ullamco laboris nisi ut aliquip ex ea
-                        commodo consequat. Duis aute irure dolor in
-                        reprehenderit in voluptate velit esse cillum dolore eu
-                        fugiat nulla pariatur.
-                        <br />
-                        <br />
-                        Excepteur sint occaecat cupidatat non proident, sunt in
-                        culpa qui officia deserunt mollit anim id est laborum.
-                        Sed ut perspiciatis unde omnis iste natus error sit
-                        voluptatem accusantium doloremque laudantium.
-                      </>
-                    ) : (
-                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua..."
-                    )}
-                  </p>
-                  <button
-                    onClick={() => setIsInfoExpanded(!isInfoExpanded)}
-                    className="text-sm text-primary hover:underline mt-2 font-medium"
-                  >
-                    {isInfoExpanded ? "Vis mindre" : "Les mer"}
-                  </button>
+        {competition.eventType === "stevne" ? (
+          <div className="space-y-3">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-1">Tidspunkt og skiver</h2>
+              <p className="text-muted-foreground">
+                Klikk på en rad for å utvide og se detaljer
+              </p>
+            </div>
+            <Card className="border-primary/20 bg-primary/5 mb-6">
+              <CardContent>
+                <div className="flex items-start gap-3">
+                  <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold mb-2">Informasjon</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {isInfoExpanded ? (
+                        <>
+                          Lorem ipsum dolor sit amet, consectetur adipiscing
+                          elit. Sed do eiusmod tempor incididunt ut labore et
+                          dolore magna aliqua. Ut enim ad minim veniam, quis
+                          nostrud exercitation ullamco laboris nisi ut aliquip
+                          ex ea commodo consequat. Duis aute irure dolor in
+                          reprehenderit in voluptate velit esse cillum dolore eu
+                          fugiat nulla pariatur.
+                          <br />
+                          <br />
+                          Excepteur sint occaecat cupidatat non proident, sunt
+                          in culpa qui officia deserunt mollit anim id est
+                          laborum. Sed ut perspiciatis unde omnis iste natus
+                          error sit voluptatem accusantium doloremque
+                          laudantium.
+                        </>
+                      ) : (
+                        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua..."
+                      )}
+                    </p>
+                    <button
+                      onClick={() => setIsInfoExpanded(!isInfoExpanded)}
+                      className="text-sm text-primary hover:underline mt-2 font-medium"
+                    >
+                      {isInfoExpanded ? "Vis mindre" : "Les mer"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <div className="overflow-hidden">
-            <div className="flex gap-6 pb-1" role="list">
-              {sortedDates.map((date) => {
-                const dateLabel = new Date(date).toLocaleDateString("no-NO", {
-                  weekday: "short",
-                  day: "2-digit",
-                  month: "short",
-                });
-                return (
-                  <Frame
-                    key={date}
-                    className="w-[380px] flex-shrink-0 m-0"
-                    role="listitem"
-                  >
-                    <FrameHeader>
-                      <FrameTitle>
-                        {dateLabel.substring(0, 1).toUpperCase() +
-                          dateLabel.substring(1)}
-                      </FrameTitle>
-                    </FrameHeader>
-                    <FramePanel className="not-has-[table]:p-0 not-has-[table]:bg-transparent not-has-[table]:border-0">
-                      <Accordion
-                        type="single"
-                        collapsible
-                        className="w-full space-y-2"
-                      >
-                        {sortedTimes.map((time) => {
-                          const byDate =
-                            timeSlotGroupsByDate.get(time) ||
-                            new Map<
-                              string,
-                              { targetId: string; slot: TimeSlot }[]
-                            >();
-                          const slotsForDateTime = (
-                            byDate.get(date) || []
-                          ).sort(
-                            (
-                              a: { targetId: string; slot: TimeSlot },
-                              b: { targetId: string; slot: TimeSlot }
-                            ) => {
-                              const targetA = targets.find(
-                                (t) => t.id === a.targetId
-                              );
-                              const targetB = targets.find(
-                                (t) => t.id === b.targetId
-                              );
-                              return (
-                                (targetA?.targetNumber || 0) -
-                                (targetB?.targetNumber || 0)
-                              );
-                            }
-                          );
-                          const availableCount = slotsForDateTime.filter(
-                            ({ slot }) => {
-                              if (!isAuthenticated)
-                                return !slot.isBooked && !slot.isLocked;
-                              const userClasses = isAuthenticated
-                                ? user?.classes || []
-                                : [];
-                              const isAllowed =
-                                !slot.allowedClasses ||
-                                slot.allowedClasses.some((c) =>
-                                  userClasses.includes(c)
+            <div className="overflow-hidden">
+              <div className="flex gap-6 pb-1" role="list">
+                {sortedDates.map((date) => {
+                  const dateLabel = new Date(date).toLocaleDateString("no-NO", {
+                    weekday: "short",
+                    day: "2-digit",
+                    month: "short",
+                  });
+                  return (
+                    <Frame
+                      key={date}
+                      className="w-[380px] flex-shrink-0 m-0"
+                      role="listitem"
+                    >
+                      <FrameHeader>
+                        <FrameTitle>
+                          {dateLabel.substring(0, 1).toUpperCase() +
+                            dateLabel.substring(1)}
+                        </FrameTitle>
+                      </FrameHeader>
+                      <FramePanel className="not-has-[table]:p-0 not-has-[table]:bg-transparent not-has-[table]:border-0">
+                        <Accordion
+                          type="single"
+                          collapsible
+                          className="w-full space-y-2"
+                        >
+                          {sortedTimes.map((time) => {
+                            const byDate =
+                              timeSlotGroupsByDate.get(time) ||
+                              new Map<
+                                string,
+                                { targetId: string; slot: TimeSlot }[]
+                              >();
+                            const slotsForDateTime = (
+                              byDate.get(date) || []
+                            ).sort(
+                              (
+                                a: { targetId: string; slot: TimeSlot },
+                                b: { targetId: string; slot: TimeSlot }
+                              ) => {
+                                const targetA = targets.find(
+                                  (t) => t.id === a.targetId
                                 );
-                              return (
-                                !slot.isBooked && !slot.isLocked && isAllowed
-                              );
-                            }
-                          ).length;
-                          const totalCount = slotsForDateTime.length;
-                          const displayAvailable = Math.min(
-                            availableCount,
-                            userAvailableForEvent
-                          );
-                          const key = `${date}|${time}`;
-                          const isFull = displayAvailable === 0;
-                          // Per-row badge relies on slot reservations later
-                          const expiresAtRow = reservations.get(key);
+                                const targetB = targets.find(
+                                  (t) => t.id === b.targetId
+                                );
+                                return (
+                                  (targetA?.targetNumber || 0) -
+                                  (targetB?.targetNumber || 0)
+                                );
+                              }
+                            );
+                            const availableCount = slotsForDateTime.filter(
+                              ({ slot }) => {
+                                if (!isAuthenticated)
+                                  return !slot.isBooked && !slot.isLocked;
+                                const userClasses = isAuthenticated
+                                  ? user?.classes || []
+                                  : [];
+                                const isAllowed =
+                                  !slot.allowedClasses ||
+                                  slot.allowedClasses.some((c) =>
+                                    userClasses.includes(c)
+                                  );
+                                return (
+                                  !slot.isBooked && !slot.isLocked && isAllowed
+                                );
+                              }
+                            ).length;
+                            const totalCount = slotsForDateTime.length;
+                            const displayAvailable = Math.min(
+                              availableCount,
+                              userAvailableForEvent
+                            );
+                            const key = `${date}|${time}`;
+                            const isFull = displayAvailable === 0;
+                            // Per-row badge relies on slot reservations later
+                            const expiresAtRow = reservations.get(key);
 
-                          return (
-                            <AccordionItem
-                              key={key}
-                              value={key}
-                              className="rounded-xl border bg-background px-4 py-1 outline-none last:border-b has-focus-visible:border-ring has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50"
-                            >
-                              <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline focus-visible:ring-0">
-                                <div className="flex justify-between w-full items-center">
-                                  <div className="flex items-center gap-3">
-                                    <div className="h-8 w-8 rounded-md flex items-center justify-center">
-                                      <Clock className="h-4 w-4" />
+                            return (
+                              <AccordionItem
+                                key={key}
+                                value={key}
+                                className="rounded-xl border bg-background px-4 py-1 outline-none last:border-b has-focus-visible:border-ring has-focus-visible:ring-[3px] has-focus-visible:ring-ring/50"
+                              >
+                                <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline focus-visible:ring-0">
+                                  <div className="flex justify-between w-full items-center">
+                                    <div className="flex items-center gap-3">
+                                      <div className="h-8 w-8 rounded-md flex items-center justify-center">
+                                        <Clock className="h-4 w-4" />
+                                      </div>
+                                      <span className="font-medium text-base">
+                                        {time}
+                                      </span>
                                     </div>
-                                    <span className="font-medium text-base">
-                                      {time}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      {expiresAtRow && expiresAtRow > nowTs ? (
+                                        <Badge className="bg-amber-100 text-amber-900 border-amber-300">
+                                          Reservert{" "}
+                                          {formatCountdown(expiresAtRow)}
+                                        </Badge>
+                                      ) : (
+                                        <Badge
+                                          variant="outline"
+                                          className={
+                                            isFull
+                                              ? ""
+                                              : "border-emerald-200 text-emerald-700 bg-emerald-50"
+                                          }
+                                        >
+                                          {displayAvailable}/{totalCount} ledig
+                                        </Badge>
+                                      )}
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    {expiresAtRow && expiresAtRow > nowTs ? (
-                                      <Badge className="bg-amber-100 text-amber-900 border-amber-300">
-                                        Reservert{" "}
-                                        {formatCountdown(expiresAtRow)}
-                                      </Badge>
-                                    ) : (
-                                      <Badge
-                                        variant="outline"
-                                        className={
-                                          isFull
-                                            ? ""
-                                            : "border-emerald-200 text-emerald-700 bg-emerald-50"
-                                        }
-                                      >
-                                        {displayAvailable}/{totalCount} ledig
-                                      </Badge>
-                                    )}
-                                  </div>
-                                </div>
-                              </AccordionTrigger>
-                              <AccordionContent className="pb-2 text-muted-foreground">
-                                <TimeSlotTable
-                                  slots={slotsForDateTime.map(
-                                    ({
-                                      targetId,
-                                      slot,
-                                    }: {
-                                      targetId: string;
-                                      slot: TimeSlot;
-                                    }) => {
-                                      const target = targets.find(
-                                        (t) => t.id === targetId
-                                      );
-                                      const userClasses = isAuthenticated
-                                        ? user?.classes || []
-                                        : [];
-                                      const isAvailable =
-                                        !slot.isBooked &&
-                                        (!slot.allowedClasses ||
-                                          slot.allowedClasses.some((c) =>
-                                            userClasses.includes(c)
-                                          ));
-                                      const isBookedByUser =
-                                        slot.bookedByName === user?.name;
-
-                                      return {
-                                        slotKey: `${targetId}:${slot.id}`,
+                                </AccordionTrigger>
+                                <AccordionContent className="pb-2 text-muted-foreground">
+                                  <TimeSlotTable
+                                    slots={slotsForDateTime.map(
+                                      ({
                                         targetId,
                                         slot,
-                                        target,
-                                        isBookedByUser,
-                                        isAvailable,
-                                      };
-                                    }
-                                  )}
-                                  isAuthenticated={isAuthenticated}
-                                  onReserve={(targetId, slotId, date) => {
-                                    setSelectedSlot({
-                                      targetId,
-                                      slotId,
-                                      date,
-                                    });
-                                  }}
-                                  onUnbook={handleUnbook}
-                                />
-                              </AccordionContent>
-                            </AccordionItem>
-                          );
-                        })}
-                      </Accordion>
-                    </FramePanel>
-                  </Frame>
-                );
-              })}
+                                      }: {
+                                        targetId: string;
+                                        slot: TimeSlot;
+                                      }) => {
+                                        const target = targets.find(
+                                          (t) => t.id === targetId
+                                        );
+                                        const userClasses = isAuthenticated
+                                          ? user?.classes || []
+                                          : [];
+                                        const isAvailable =
+                                          !slot.isBooked &&
+                                          (!slot.allowedClasses ||
+                                            slot.allowedClasses.some((c) =>
+                                              userClasses.includes(c)
+                                            ));
+                                        const isBookedByUser =
+                                          slot.bookedByName === user?.name;
+
+                                        return {
+                                          slotKey: `${targetId}:${slot.id}`,
+                                          targetId,
+                                          slot,
+                                          target,
+                                          isBookedByUser,
+                                          isAvailable,
+                                        };
+                                      }
+                                    )}
+                                    isAuthenticated={isAuthenticated}
+                                    onReserve={(targetId, slotId, date) => {
+                                      setSelectedSlot({
+                                        targetId,
+                                        slotId,
+                                        date,
+                                      });
+                                    }}
+                                    onUnbook={handleUnbook}
+                                  />
+                                </AccordionContent>
+                              </AccordionItem>
+                            );
+                          })}
+                        </Accordion>
+                      </FramePanel>
+                    </Frame>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          // Møter and Kurs UI
+          <div className="space-y-4">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold mb-1">
+                {competition.eventType === "møte"
+                  ? "Påmeldinger"
+                  : "Påmeldinger til kurset"}
+              </h2>
+              <p className="text-muted-foreground">
+                {competition.eventType === "møte"
+                  ? "Oversikt over påmeldte til møtet"
+                  : "Oversikt over påmeldte til kurset"}
+              </p>
+            </div>
+
+            <Card className="border-primary/20 bg-primary/5 mb-6">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3">
+                  <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold mb-2">Informasjon</h3>
+                    {competition.description && (
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {competition.description}
+                      </p>
+                    )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {competition.instructor && (
+                        <div>
+                          <span className="text-sm font-medium">
+                            Instruktør:{" "}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {competition.instructor}
+                          </span>
+                        </div>
+                      )}
+                      {competition.prerequisites &&
+                        competition.prerequisites.length > 0 && (
+                          <div>
+                            <span className="text-sm font-medium">
+                              Forutsetninger:{" "}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {competition.prerequisites.join(", ")}
+                            </span>
+                          </div>
+                        )}
+                      {competition.maxParticipants && (
+                        <div>
+                          <span className="text-sm font-medium">
+                            Maks deltakere:{" "}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {competition.maxParticipants}
+                          </span>
+                        </div>
+                      )}
+                      {competition.meetingType && (
+                        <div>
+                          <span className="text-sm font-medium">
+                            Møtetype:{" "}
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {competition.meetingType}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {isAuthenticated && (
+              <Card className="mb-6">
+                <CardContent className="pt-6">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="text-center">
+                      <h3 className="text-lg font-semibold mb-2">
+                        Meld deg på
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Ledige plasser:{" "}
+                        {Math.max(
+                          0,
+                          (competition.maxParticipants ||
+                            competition.totalSlots) -
+                            BookingService.getCompetitionBookings(
+                              competition.id
+                            ).length
+                        )}
+                      </p>
+                    </div>
+                    <Button
+                      size="lg"
+                      onClick={() => setShowSimpleBooking(true)}
+                      disabled={
+                        BookingService.getCompetitionBookings(competition.id)
+                          .length >=
+                        (competition.maxParticipants || competition.totalSlots)
+                      }
+                    >
+                      <Users className="h-5 w-5 mr-2" />
+                      Meld deg på
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* List of registered participants */}
+            {(() => {
+              const registeredUsers = BookingService.getCompetitionBookings(
+                competition.id
+              );
+              return registeredUsers.length > 0 ? (
+                <Card>
+                  <CardContent className="pt-6">
+                    <h3 className="font-semibold mb-4">
+                      Påmeldte ({registeredUsers.length})
+                    </h3>
+                    <div className="space-y-2">
+                      {registeredUsers.map((booking) => (
+                        <div
+                          key={booking.id}
+                          className="flex items-center justify-between p-3 border rounded-lg"
+                        >
+                          <span className="text-sm font-medium">
+                            {booking.userName}
+                          </span>
+                          <Badge variant="secondary">Påmeldt</Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="pt-6">
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Ingen påmeldte ennå
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+          </div>
+        )}
       </div>
 
       {/* Mobile drawer for a selected time */}
@@ -749,6 +911,16 @@ export default function CompetitionPage({
           reservationExpiresAt={reservations.get(selectedSlot.slotId)}
         />
       )}
+
+      {competition &&
+        (competition.eventType === "møte" ||
+          competition.eventType === "kurs") && (
+          <SimpleBookingDialog
+            open={showSimpleBooking}
+            onOpenChange={setShowSimpleBooking}
+            competition={competition}
+          />
+        )}
     </div>
   );
 }

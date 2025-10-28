@@ -10,6 +10,15 @@ import { Discipline } from "@/components/createEvent/Discipline";
 import { EventSettings } from "@/components/createEvent/EventSettings";
 import { EventInformation } from "@/components/createEvent/EventInformation";
 
+export type Squad = {
+  id: string;
+  index: number;
+  startTime?: string; // Override the calculated time
+  capacity?: number; // Override the default capacity
+  isLocked?: boolean; // Whether this squad is locked/blocked
+  allowedClasses?: string[]; // Class restrictions specific to this squad
+};
+
 export type Exercise = {
   id: string;
   name: string;
@@ -19,6 +28,8 @@ export type Exercise = {
   numSquads: number;
   capacity: number;
   breaks: Break[];
+  allowedClasses?: string[]; // Exercise-wide class restrictions
+  squads?: Squad[]; // Individual squad overrides
 };
 
 export type Break = {

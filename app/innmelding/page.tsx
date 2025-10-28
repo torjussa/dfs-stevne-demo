@@ -439,10 +439,7 @@ export default function MembershipPage() {
                   }
                 />
                 <div className="flex-1 space-y-1">
-                  <Label
-                    htmlFor="wantsInsurance"
-                    className="cursor-pointer text-base"
-                  >
+                  <Label htmlFor="wantsInsurance" className="cursor-pointer">
                     Ja, jeg ønsker våpenforsikring
                   </Label>
                   <p className="text-sm text颓-muted-foreground">

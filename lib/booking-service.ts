@@ -2,6 +2,65 @@ import type { Booking } from "./types";
 
 const STORAGE_KEY = "shooting-app-bookings";
 
+// Initialize with demo bookings if localStorage is empty
+function initializeDemoBookings() {
+  if (typeof window === "undefined") return;
+
+  try {
+    const existing = localStorage.getItem(STORAGE_KEY);
+    const existingBookings = existing ? JSON.parse(existing) : [];
+
+    // Check if we need to create demo bookings for the logged-in user
+    const storedUser = localStorage.getItem("shooting-app-user");
+    if (!storedUser) return; // No user logged in yet
+
+    const user = JSON.parse(storedUser);
+    const userEmail = user.email;
+
+    // Check if user already has bookings
+    const hasUserBookings = existingBookings.some(
+      (b: StoredBooking) => b.userEmail === userEmail
+    );
+
+    if (hasUserBookings) return; // User already has bookings
+
+    const demoBookings: StoredBooking[] = [
+      {
+        id: `demo-booking-1-${userEmail}`,
+        competitionId: "3", // Samlagsstemne Felt Sunnfjord
+        targetId: "demo-target-1",
+        timeSlotId: "demo-slot-1",
+        userName: user.name,
+        userEmail: userEmail,
+        bookedAt: new Date().toISOString(),
+      },
+      {
+        id: `demo-booking-2-${userEmail}`,
+        competitionId: "6", // Onsdagstreff
+        targetId: "demo-target-2",
+        timeSlotId: "demo-slot-2",
+        userName: user.name,
+        userEmail: userEmail,
+        bookedAt: new Date().toISOString(),
+      },
+      {
+        id: `demo-booking-3-${userEmail}`,
+        competitionId: "k1", // Sikkerhetskurs for Våpenholdere
+        targetId: "demo-target-3",
+        timeSlotId: "demo-slot-3",
+        userName: user.name,
+        userEmail: userEmail,
+        bookedAt: new Date().toISOString(),
+      },
+    ];
+
+    const allBookings = [...existingBookings, ...demoBookings];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allBookings));
+  } catch (error) {
+    console.error("Error initializing demo bookings:", error);
+  }
+}
+
 export interface StoredBooking extends Booking {
   reservedUntil?: string; // ISO timestamp for reservation timeout
 }
@@ -16,6 +75,9 @@ export class BookingService {
    */
   static getAllBookings(): StoredBooking[] {
     if (typeof window === "undefined") return [];
+
+    // Initialize demo data on first access
+    initializeDemoBookings();
 
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -129,5 +191,53 @@ export class BookingService {
     userEmail: string
   ): string {
     return `${competitionId}-${targetId}-${timeSlotId}-${userEmail}`;
+  }
+
+  /**
+   * Generate a simple booking ID for events without time slots (møter/kurs)
+   */
+  static generateSimpleBookingId(
+    competitionId: string,
+    userEmail: string
+  ): string {
+    return `${competitionId}-simple-${userEmail}-${Date.now()}`;
+  }
+
+  /**
+   * Create a simple booking for events without time slots (møter/kurs)
+   */
+  static createSimpleBooking(
+    competitionId: string,
+    userName: string,
+    userEmail: string,
+    userClass: string
+  ): void {
+    const allBookings = this.getAllBookings();
+
+    // Check if user already has a booking for this event
+    const existingBooking = allBookings.find(
+      (b) => b.competitionId === competitionId && b.userEmail === userEmail
+    );
+
+    if (existingBooking) {
+      console.warn("User already has a booking for this event");
+      return;
+    }
+
+    const bookingId = this.generateSimpleBookingId(competitionId, userEmail);
+    const now = new Date();
+
+    const newBooking: StoredBooking = {
+      id: bookingId,
+      competitionId,
+      targetId: "none", // No target for simple bookings
+      timeSlotId: "none", // No time slot for simple bookings
+      userName,
+      userEmail,
+      bookedAt: now.toISOString(),
+    };
+
+    allBookings.push(newBooking);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allBookings));
   }
 }

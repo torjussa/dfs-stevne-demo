@@ -1,6 +1,5 @@
 import { Clock, Coffee } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Exercise } from "@/app/create-event/page";
+import { Exercise } from "@/app/opprett-arrangement/page";
 import { Card } from "../ui/card";
 
 type Props = {

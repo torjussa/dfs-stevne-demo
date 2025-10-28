@@ -22,6 +22,7 @@ This is a DFS (Norwegian Shooting Federation) competition registration **fronten
 - Use new Tabs API: `Tabs`, `TabsList`, `TabsTab`, `TabsPanel` (no `TabsTrigger`/`TabsContent`)
 - Prefer `Accordion` from `components/ui/accordion` for collapsible sections
 - Use Base UI `Frame` component (`components/ui/frame`) for card-like containers instead of custom div structures
+- Home page should present a role-aware dashboard: upcoming events, quick actions, my registrations (when logged-in), notifications, stats, calendar and a map, with a hero + search.
 
 ## Project Structure
 
@@ -69,15 +70,22 @@ This is a DFS (Norwegian Shooting Federation) competition registration **fronten
 - "Mine påmeldinger" now displays actual bookings from localStorage
 - Modernized list view design for time slot selection with cleaner card-based UI
 - Improved visual hierarchy with better spacing and subtle colors
+- **Meeting/Course booking**: Simple registration without time slots for møter and kurs
+- **Public viewing**: Registrations visible without login, booking requires login
+- **Class restrictions**: Visual indicators and validation for slots with allowedClasses
+- **Simple booking dialog**: Created for meetings/courses with participant list display
 
 ### 🔴 Known Issues (See POC-ANALYSE.md)
 
-- Missing reservation timeout system (10 minutes)
-- Missing public registration list view
-- No support for booking without time slots (for møter/kurs)
 - Missing voucher code system
 - No email notifications
 - Membership data saved to localStorage (POC limitation - needs backend)
+
+### 🟡 Note
+
+- Reservation timeout system (10 minutes) IS implemented in app/arrangement/[id]/page.tsx
+- Public registration list view IS implemented (users can view without login)
+- Booking without time slots IS implemented for møter/kurs
 
 ### 📄 Documentation
 

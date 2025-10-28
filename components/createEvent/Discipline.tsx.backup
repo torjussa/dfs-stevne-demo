@@ -1,0 +1,658 @@
+import { Button } from "@/components/ui/button";
+import {
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Tabs, TabsList, TabsTab, TabsPanel } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import {
+  Calendar,
+  Plus,
+  Trash2,
+  Coffee,
+  Copy,
+  AlertCircle,
+} from "lucide-react";
+import { DayConfig, Exercise } from "@/app/opprett-arrangement/page";
+import { EVENT_TEMPLATES } from "./Templates";
+import { PreviewSlots } from "./PreviewSlots";
+import { useState } from "react";
+
+type Props = {
+  eventDays: string[];
+  selectedTemplate: string | null;
+  dayConfigs: DayConfig[];
+  setDayConfigs: React.Dispatch<React.SetStateAction<DayConfig[]>>;
+  selectedDay: string;
+  setSelectedDay: React.Dispatch<React.SetStateAction<string>>;
+};
+
+export const Discipline = ({
+  eventDays,
+  selectedTemplate,
+  dayConfigs,
+  setDayConfigs,
+  selectedDay,
+  setSelectedDay,
+}: Props) => {
+  const [expandedExercises, setExpandedExercises] = useState<string[]>([]);
+
+  // Helper to validate exercise
+  const isExerciseValid = (exercise: Exercise): boolean => {
+    return (
+      exercise.interval > 0 &&
+      exercise.numSquads >= 1 &&
+      exercise.capacity >= 1 &&
+      exercise.startTime !== ""
+    );
+  };
+
+  // Calculate estimated end time for an exercise
+  const getEstimatedEndTime = (exercise: Exercise): string => {
+    const startMinutes =
+      Number.parseInt(exercise.startTime.split(":")[0]) * 60 +
+      Number.parseInt(exercise.startTime.split(":")[1]);
+    const totalMinutes =
+      startMinutes +
+      exercise.numSquads * exercise.interval +
+      exercise.breaks.reduce((sum, b) => sum + b.duration, 0);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  const addExercise = (date: string) => {
+    const newExercise: Exercise = {
+      id: `ex-${Date.now()}`,
+      name: "Ny øvelse",
+      range: "Bane 1",
+      startTime: "09:00",
+      interval: selectedTemplate
+        ? EVENT_TEMPLATES[selectedTemplate as keyof typeof EVENT_TEMPLATES]
+            .defaultInterval
+        : 35,
+      numSquads: 10,
+      capacity: selectedTemplate
+        ? EVENT_TEMPLATES[selectedTemplate as keyof typeof EVENT_TEMPLATES]
+            .defaultCapacity
+        : 10,
+      breaks: [],
+    };
+
+    setDayConfigs((prev) =>
+      prev.map((config) =>
+        config.date === date
+          ? { ...config, exercises: [...config.exercises, newExercise] }
+          : config
+      )
+    );
+    // Auto-expand newly added exercise
+    setExpandedExercises((prev) => [...prev, newExercise.id]);
+  };
+
+  const duplicateExercise = (exerciseId: string) => {
+    const sourceConfig = dayConfigs.find((c) => c.date === selectedDay);
+    const exercise = sourceConfig?.exercises.find((e) => e.id === exerciseId);
+    if (!exercise) return;
+
+    const duplicatedExercise = {
+      ...exercise,
+      id: `ex-${Date.now()}`,
+      name: `${exercise.name} (kopi)`,
+    };
+    setDayConfigs((prev) =>
+      prev.map((config) =>
+        config.date === selectedDay
+          ? { ...config, exercises: [...config.exercises, duplicatedExercise] }
+          : config
+      )
+    );
+    setExpandedExercises((prev) => [...prev, duplicatedExercise.id]);
+  };
+
+  const copyExerciseToDay = (exerciseId: string, targetDate: string) => {
+    const sourceConfig = dayConfigs.find((c) => c.date === selectedDay);
+    const exercise = sourceConfig?.exercises.find((e) => e.id === exerciseId);
+    if (!exercise) return;
+
+    const copiedExercise = { ...exercise, id: `ex-${Date.now()}` };
+    setDayConfigs((prev) =>
+      prev.map((config) =>
+        config.date === targetDate
+          ? { ...config, exercises: [...config.exercises, copiedExercise] }
+          : config
+      )
+    );
+  };
+
+  const copyToAllDays = () => {
+    const sourceConfig = dayConfigs.find((c) => c.date === selectedDay);
+    if (!sourceConfig) return;
+
+    setDayConfigs((prev) =>
+      prev.map((config) =>
+        config.date !== selectedDay
+          ? {
+              ...config,
+              exercises: sourceConfig.exercises.map((ex) => ({
+                ...ex,
+                id: `ex-${Date.now()}-${Math.random()}`,
+              })),
+            }
+          : config
+      )
+    );
+  };
+
+  const addBreak = (exerciseId: string) => {
+    setDayConfigs((prev) =>
+      prev.map((config) =>
+        config.date === selectedDay
+          ? {
+              ...config,
+              exercises: config.exercises.map((ex) =>
+                ex.id === exerciseId
+                  ? {
+                      ...ex,
+                      breaks: [
+                        ...ex.breaks,
+                        {
+                          id: `break-${Date.now()}`,
+                          afterSquad: Math.floor(ex.numSquads / 2),
+                          duration: 30,
+                          label: "Pause",
+                        },
+                      ],
+                    }
+                  : ex
+              ),
+            }
+          : config
+      )
+    );
+  };
+
+  const removeBreak = (exerciseId: string, breakId: string) => {
+    setDayConfigs((prev) =>
+      prev.map((config) =>
+        config.date === selectedDay
+          ? {
+              ...config,
+              exercises: config.exercises.map((ex) =>
+                ex.id === exerciseId
+                  ? { ...ex, breaks: ex.breaks.filter((b) => b.id !== breakId) }
+                  : ex
+              ),
+            }
+          : config
+      )
+    );
+  };
+
+  const updateExercise = (
+    exerciseId: string,
+    field: keyof Exercise,
+    value: any
+  ) => {
+    setDayConfigs((prev) =>
+      prev.map((config) =>
+        config.date === selectedDay
+          ? {
+              ...config,
+              exercises: config.exercises.map((ex) =>
+                ex.id === exerciseId ? { ...ex, [field]: value } : ex
+              ),
+            }
+          : config
+      )
+    );
+  };
+
+  const deleteExercise = (exerciseId: string) => {
+    setDayConfigs((prev) =>
+      prev.map((config) =>
+        config.date === selectedDay
+          ? {
+              ...config,
+              exercises: config.exercises.filter((ex) => ex.id !== exerciseId),
+            }
+          : config
+      )
+    );
+  };
+
+  const currentDayConfig = dayConfigs.find((c) => c.date === selectedDay);
+  const exercises = currentDayConfig?.exercises || [];
+
+  return (
+    <>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="h-5 w-5" />
+          Øvelser og lag
+        </CardTitle>
+        <CardDescription>
+          Konfigurer øvelser, lag, pauser og tidspunkt for påmelding
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Day selector and quick actions */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Label className="text-sm font-medium">Dag:</Label>
+            <Select value={selectedDay} onValueChange={setSelectedDay}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {eventDays.map((day) => (
+                  <SelectItem key={day} value={day}>
+                    {new Date(day).toLocaleDateString("nb-NO", {
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                    })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {exercises.length > 0 && eventDays.length > 1 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={copyToAllDays}
+              disabled={
+                !currentDayConfig || currentDayConfig.exercises.length === 0
+              }
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Kopier til alle dager
+            </Button>
+          )}
+        </div>
+
+        {/* Exercises accordion */}
+        {exercises.length > 0 ? (
+          <Accordion
+            type="multiple"
+            value={expandedExercises}
+            onValueChange={setExpandedExercises}
+            className="space-y-2"
+          >
+            {exercises.map((exercise) => {
+              const isValid = isExerciseValid(exercise);
+              const endTime = getEstimatedEndTime(exercise);
+
+              return (
+                <AccordionItem key={exercise.id} value={exercise.id}>
+                  <AccordionTrigger className="hover:no-underline">
+                    <div className="flex items-center gap-3 flex-1 pr-2">
+                      <div className="flex-1 text-left">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">{exercise.name}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {exercise.range}
+                          </Badge>
+                          {!isValid && (
+                            <Badge variant="destructive" className="text-xs">
+                              <AlertCircle className="h-3 w-3 mr-1" />
+                              Mangler data
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {exercise.startTime} - {endTime} •{" "}
+                          {exercise.numSquads} lag
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            duplicateExercise(exercise.id);
+                          }}
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteExercise(exercise.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-4 space-y-4">
+                    <Tabs defaultValue="setup" className="space-y-4">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTab value="setup">Oppsett</TabsTab>
+                        <TabsTab value="squads">Lag</TabsTab>
+                        <TabsTab value="rules">Restriksjoner</TabsTab>
+                      </TabsList>
+
+                      <TabsPanel value="setup" className="space-y-4">
+                        {/* Exercise name and range */}
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div className="space-y-2">
+                            <Label>Øvelsesnavn *</Label>
+                            <Input
+                              value={exercise.name}
+                              onChange={(e) =>
+                                updateExercise(
+                                  exercise.id,
+                                  "name",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="F.eks. Bane 100m"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Bane *</Label>
+                            <Select
+                              value={exercise.range}
+                              onValueChange={(val) =>
+                                updateExercise(exercise.id, "range", val)
+                              }
+                            >
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Bane 1">Bane 1</SelectItem>
+                                <SelectItem value="Bane 2">Bane 2</SelectItem>
+                                <SelectItem value="Bane 3">Bane 3</SelectItem>
+                                <SelectItem value="Innendørs">
+                                  Innendørs
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        {/* Start time, interval, number of squads, capacity */}
+                        <div className="grid gap-4 md:grid-cols-4">
+                          <div className="space-y-2">
+                            <Label>Første lag *</Label>
+                            <Input
+                              type="time"
+                              value={exercise.startTime}
+                              onChange={(e) =>
+                                updateExercise(
+                                  exercise.id,
+                                  "startTime",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Intervall (min) *</Label>
+                            <Input
+                              type="number"
+                              value={exercise.interval}
+                              onChange={(e) =>
+                                updateExercise(
+                                  exercise.id,
+                                  "interval",
+                                  Number.parseInt(e.target.value)
+                                )
+                              }
+                              min="1"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Antall lag *</Label>
+                            <Input
+                              type="number"
+                              value={exercise.numSquads}
+                              onChange={(e) =>
+                                updateExercise(
+                                  exercise.id,
+                                  "numSquads",
+                                  Number.parseInt(e.target.value)
+                                )
+                              }
+                              min="1"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Kapasitet per lag *</Label>
+                            <Input
+                              type="number"
+                              value={exercise.capacity}
+                              onChange={(e) =>
+                                updateExercise(
+                                  exercise.id,
+                                  "capacity",
+                                  Number.parseInt(e.target.value)
+                                )
+                              }
+                              min="1"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Breaks section */}
+                        <div className="space-y-3">
+                          <Label>Pauser</Label>
+                          {exercise.breaks.length > 0 && (
+                            <div className="space-y-2">
+                              {exercise.breaks.map((breakItem) => (
+                                <div
+                                  key={breakItem.id}
+                                  className="flex items-center gap-2"
+                                >
+                                  <Coffee className="h-4 w-4 text-muted-foreground" />
+                                  <Input
+                                    className="flex-1"
+                                    placeholder="Pausenavn"
+                                    value={breakItem.label}
+                                    onChange={(e) => {
+                                      setDayConfigs((prev) =>
+                                        prev.map((config) =>
+                                          config.date === selectedDay
+                                            ? {
+                                                ...config,
+                                                exercises: config.exercises.map(
+                                                  (ex) =>
+                                                    ex.id === exercise.id
+                                                      ? {
+                                                          ...ex,
+                                                          breaks: ex.breaks.map(
+                                                            (b) =>
+                                                              b.id ===
+                                                              breakItem.id
+                                                                ? {
+                                                                    ...b,
+                                                                    label:
+                                                                      e.target
+                                                                        .value,
+                                                                  }
+                                                                : b
+                                                          ),
+                                                        }
+                                                      : ex
+                                                ),
+                                              }
+                                            : config
+                                        )
+                                      );
+                                    }}
+                                  />
+                                  <Input
+                                    type="number"
+                                    className="w-24"
+                                    placeholder="Etter lag"
+                                    value={breakItem.afterSquad}
+                                    onChange={(e) => {
+                                      setDayConfigs((prev) =>
+                                        prev.map((config) =>
+                                          config.date === selectedDay
+                                            ? {
+                                                ...config,
+                                                exercises: config.exercises.map(
+                                                  (ex) =>
+                                                    ex.id === exercise.id
+                                                      ? {
+                                                          ...ex,
+                                                          breaks: ex.breaks.map(
+                                                            (b) =>
+                                                              b.id ===
+                                                              breakItem.id
+                                                                ? {
+                                                                    ...b,
+                                                                    afterSquad:
+                                                                      Number.parseInt(
+                                                                        e.target
+                                                                          .value
+                                                                      ),
+                                                                  }
+                                                                : b
+                                                          ),
+                                                        }
+                                                      : ex
+                                                ),
+                                              }
+                                            : config
+                                        )
+                                      );
+                                    }}
+                                  />
+                                  <Input
+                                    type="number"
+                                    className="w-24"
+                                    placeholder="Minutter"
+                                    value={breakItem.duration}
+                                    onChange={(e) => {
+                                      setDayConfigs((prev) =>
+                                        prev.map((config) =>
+                                          config.date === selectedDay
+                                            ? {
+                                                ...config,
+                                                exercises: config.exercises.map(
+                                                  (ex) =>
+                                                    ex.id === exercise.id
+                                                      ? {
+                                                          ...ex,
+                                                          breaks: ex.breaks.map(
+                                                            (b) =>
+                                                              b.id ===
+                                                              breakItem.id
+                                                                ? {
+                                                                    ...b,
+                                                                    duration:
+                                                                      Number.parseInt(
+                                                                        e.target
+                                                                          .value
+                                                                      ),
+                                                                  }
+                                                                : b
+                                                          ),
+                                                        }
+                                                      : ex
+                                                ),
+                                              }
+                                            : config
+                                        )
+                                      );
+                                    }}
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() =>
+                                      removeBreak(exercise.id, breakItem.id)
+                                    }
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addBreak(exercise.id)}
+                          >
+                            <Coffee className="mr-2 h-4 w-4" />
+                            Legg til pause
+                          </Button>
+                        </div>
+                      </TabsPanel>
+
+                      <TabsPanel value="squads" className="space-y-4">
+                        <div className="rounded-md bg-muted p-4">
+                          <p className="mb-2 text-sm font-medium">
+                            Forhåndsvisning av tidspunkter:
+                          </p>
+                          <PreviewSlots
+                            exercise={exercise}
+                            eventDays={eventDays}
+                          />
+                        </div>
+                      </TabsPanel>
+
+                      <TabsPanel value="rules" className="space-y-4">
+                        <div className="rounded-md bg-muted p-4 text-center">
+                          <p className="text-sm text-muted-foreground">
+                            Klasse-restriksjoner kommer snart
+                          </p>
+                        </div>
+                      </TabsPanel>
+                    </Tabs>
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        ) : (
+          <div className="rounded-md border-2 border-dashed border-muted-foreground/25 p-8 text-center">
+            <Calendar className="mx-auto h-12 w-12 text-muted-foreground/50" />
+            <h3 className="mt-4 text-lg font-semibold">Ingen øvelser ennå</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Legg til din første øvelse for å komme i gang
+            </p>
+          </div>
+        )}
+
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => addExercise(selectedDay)}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Legg til øvelse
+        </Button>
+      </CardContent>
+    </>
+  );
+};

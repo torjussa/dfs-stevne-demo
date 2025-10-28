@@ -26,12 +26,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import type { TimeSlot } from "@/lib/types";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export type SlotRow = {
   slotKey: string;
@@ -123,36 +119,74 @@ export function TimeSlotTable({
                   </Badge>
                 )
               ) : slot.isLocked ? (
-                <HoverCard>
-                  <HoverCardTrigger asChild>
+                <Tooltip>
+                  <TooltipTrigger>
                     <Badge className="bg-amber-100 text-amber-800 border-amber-300 cursor-default">
                       Låst
                     </Badge>
-                  </HoverCardTrigger>
-                  <HoverCardContent>
+                  </TooltipTrigger>
+                  <TooltipContent>
                     <div className="text-xs">
                       En annen skytter holder på å reservere denne tiden.
                     </div>
-                  </HoverCardContent>
-                </HoverCard>
+                  </TooltipContent>
+                </Tooltip>
               ) : !isAuthenticated && !slot.isBooked && !slot.isLocked ? (
                 <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50">
                   Ledig
                 </Badge>
+              ) : !isAvailable && slot.allowedClasses ? (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Badge className="bg-gray-200 text-gray-600 border-gray-300 cursor-default flex items-center gap-1">
+                      <Info className="h-3.5 w-3.5" />
+                      Kun {slot.allowedClasses.join(", ")}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="text-xs">
+                      <div className="font-medium mb-1">
+                        Begrenset til klasser:
+                      </div>
+                      <div>{slot.allowedClasses.join(", ")}</div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
               ) : !isAvailable ? (
-                <HoverCard>
-                  <HoverCardTrigger asChild>
+                <Tooltip>
+                  <TooltipTrigger>
                     <Badge className="bg-gray-200 text-gray-600 border-gray-300 cursor-default flex items-center gap-1">
                       <Info className="h-3.5 w-3.5" />
                       Utilgjengelig
                     </Badge>
-                  </HoverCardTrigger>
-                  <HoverCardContent>
+                  </TooltipTrigger>
+                  <TooltipContent>
                     <div className="text-xs">
                       Ikke tilgjengelig for dine klasser.
                     </div>
-                  </HoverCardContent>
-                </HoverCard>
+                  </TooltipContent>
+                </Tooltip>
+              ) : slot.allowedClasses && slot.allowedClasses.length > 0 ? (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        onReserve(row.original.targetId, slot.id, slot.date)
+                      }
+                    >
+                      Reserver
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="text-xs">
+                      <div className="font-medium mb-1">
+                        Begrenset til klasser:
+                      </div>
+                      <div>{slot.allowedClasses.join(", ")}</div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
               ) : isAuthenticated && isAvailable ? (
                 <Button
                   size="sm"

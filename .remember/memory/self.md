@@ -126,4 +126,22 @@ export default function Page() {
   const [state, setState] = useState(); // Works in client component
   // ...
 }
+
+### Mistake: Using next/dynamic to import a module instead of a component
+**Wrong**:
+```
+
+const ClientSection = dynamic(() => import("@/components/sidebar-navigation-handler"), { ssr: false });
+
+```
+This resolves to a module, causing a type error when rendered.
+
+**Correct**:
+```
+
+import { SidebarNavigationHandler } from "@/components/sidebar-navigation-handler";
+// or export default component and use dynamic(() => import("...")) that returns a component
+
+```
+
 ```
