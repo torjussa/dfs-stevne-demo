@@ -5,6 +5,13 @@ import {
   SPECIAL_CLASSES,
 } from "./utils";
 
+// Helper function to get a date relative to today (in YYYY-MM-DD format)
+function getRelativeDate(daysOffset: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() + daysOffset);
+  return date.toISOString().slice(0, 10);
+}
+
 // Helpers to compute totalSlots = floor(days * hours * targetCount * (60/slotDuration))
 function calcDays(startDate: string, endDate: string): number {
   const sd = new Date(startDate);
@@ -35,21 +42,22 @@ function calcTotalSlots(
 }
 
 export const mockCompetitions: Competition[] = [
+  // --- Existing Competitions ---
   {
     id: "3",
     name: "Samlagsstemne Felt Sunnfjord",
     location: "Dale (Sunnfjord)",
     region: "Vestland",
     eventType: "stevne",
-    startDate: "2025-08-13",
-    endDate: "2025-08-15",
+    startDate: getRelativeDate(5),
+    endDate: getRelativeDate(7),
     startTime: "09:00",
     endTime: "16:00",
     targetCount: 10,
     slotDuration: 45,
     totalSlots: calcTotalSlots(
-      "2025-08-13",
-      "2025-08-15",
+      getRelativeDate(5),
+      getRelativeDate(7),
       "09:00",
       "16:00",
       10,
@@ -60,7 +68,8 @@ export const mockCompetitions: Competition[] = [
     type: "outdoor",
     organizer: "Sunnfjord Skytterlag",
     description:
-      "Årlig samlagsstemne i felt med alle klasser. Perfekt for både nybegynnere og erfarne skyttere.",
+      "Årlig samlagsstemne i felt med alle klasser. Perfekt for både " +
+      "nybegynnere og erfarne skyttere.",
     coordinates: { lat: 61.3631, lng: 5.4003 },
   },
   {
@@ -69,15 +78,15 @@ export const mockCompetitions: Competition[] = [
     location: "Toten",
     region: "Innlandet",
     eventType: "stevne",
-    startDate: "2025-10-11",
-    endDate: "2025-10-11",
+    startDate: getRelativeDate(-2),
+    endDate: getRelativeDate(-2),
     startTime: "09:00",
     endTime: "12:00",
     targetCount: 6,
     slotDuration: 60,
     totalSlots: calcTotalSlots(
-      "2025-10-11",
-      "2025-10-11",
+      getRelativeDate(-2),
+      getRelativeDate(-2),
       "09:00",
       "12:00",
       6,
@@ -97,15 +106,15 @@ export const mockCompetitions: Competition[] = [
     location: "Fiska Skyttarlag",
     region: "Trøndelag",
     eventType: "stevne",
-    startDate: "2026-10-10",
-    endDate: "2026-10-10",
+    startDate: getRelativeDate(12),
+    endDate: getRelativeDate(12),
     startTime: "15:00",
     endTime: "18:00",
     targetCount: 10,
     slotDuration: 30,
     totalSlots: calcTotalSlots(
-      "2026-10-10",
-      "2026-10-10",
+      getRelativeDate(12),
+      getRelativeDate(12),
       "15:00",
       "18:00",
       10,
@@ -125,15 +134,15 @@ export const mockCompetitions: Competition[] = [
     location: "Fiska Skyttarlag",
     region: "Trøndelag",
     eventType: "stevne",
-    startDate: "2026-01-10",
-    endDate: "2026-01-11",
+    startDate: getRelativeDate(30),
+    endDate: getRelativeDate(31),
     startTime: "11:00",
     endTime: "18:00",
     targetCount: 10,
     slotDuration: 35,
     totalSlots: calcTotalSlots(
-      "2026-01-10",
-      "2026-01-11",
+      getRelativeDate(30),
+      getRelativeDate(31),
       "11:00",
       "18:00",
       10,
@@ -153,15 +162,15 @@ export const mockCompetitions: Competition[] = [
     location: "Fiska Skyttarlag",
     region: "Trøndelag",
     eventType: "stevne",
-    startDate: "2025-10-10",
-    endDate: "2025-10-12",
+    startDate: getRelativeDate(-5),
+    endDate: getRelativeDate(-3),
     startTime: "10:00",
     endTime: "18:00",
     targetCount: 9,
     slotDuration: 30,
     totalSlots: calcTotalSlots(
-      "2025-10-10",
-      "2025-10-12",
+      getRelativeDate(-5),
+      getRelativeDate(-3),
       "10:00",
       "18:00",
       9,
@@ -175,22 +184,196 @@ export const mockCompetitions: Competition[] = [
       "VM-Cup runde 3 med fokus på presisjon og konsistens. Alle klasser velkommen.",
     coordinates: { lat: 63.4305, lng: 10.3951 },
   },
-  // Møter
+  // --- New Competitions ---
+  {
+    id: "10",
+    name: "Vestlandsmesterskap Skive 2025",
+    location: "Bergen Skytebane",
+    region: "Vestland",
+    eventType: "stevne",
+    startDate: getRelativeDate(15),
+    endDate: getRelativeDate(17),
+    startTime: "08:30",
+    endTime: "17:00",
+    targetCount: 12,
+    slotDuration: 40,
+    totalSlots: calcTotalSlots(
+      getRelativeDate(15),
+      getRelativeDate(17),
+      "08:30",
+      "17:00",
+      12,
+      40
+    ),
+    status: "open",
+    classes: ["JEG", "V73", "K5", "AG3", "NV"],
+    type: "outdoor",
+    organizer: "Bergen Skytterlag",
+    description:
+      "Årets store skivemesterskap i Vestland. Krevende forhold, premier til " +
+      "topp 3 i hver klasse.",
+    coordinates: { lat: 60.3913, lng: 5.3221 }, // Bergen
+  },
+  {
+    id: "11",
+    name: "Østlandscup Finale",
+    location: "Løten Skytehall",
+    region: "Innlandet",
+    eventType: "stevne",
+    startDate: getRelativeDate(45),
+    endDate: getRelativeDate(46),
+    startTime: "10:00",
+    endTime: "16:00",
+    targetCount: 8,
+    slotDuration: 50,
+    totalSlots: calcTotalSlots(
+      getRelativeDate(45),
+      getRelativeDate(46),
+      "10:00",
+      "16:00",
+      8,
+      50
+    ),
+    status: "open",
+    classes: ["R", "ER", "Eldre Junior", "Kikkertklasse"],
+    type: "indoor",
+    organizer: "Løten Skytterlag",
+    description:
+      "Spenende finale i Østlandscupen. Hvem stikker av med den gjeve tittelen?",
+    coordinates: { lat: 60.8354, lng: 11.3667 }, // Løten
+  },
+  {
+    id: "12",
+    name: "Nord-Norsk Mesterskap Felt",
+    location: "Bodø Militære Skytefelt",
+    region: "Nordland",
+    eventType: "stevne",
+    startDate: getRelativeDate(120),
+    endDate: getRelativeDate(122),
+    startTime: "07:00",
+    endTime: "19:00",
+    targetCount: 15,
+    slotDuration: 30,
+    totalSlots: calcTotalSlots(
+      getRelativeDate(120),
+      getRelativeDate(122),
+      "07:00",
+      "19:00",
+      15,
+      30
+    ),
+    status: "closed",
+    classes: ["HV", "AG3", "Spesialfelt"],
+    type: "outdoor",
+    organizer: "Bodø Skyttersamlag",
+    description:
+      "Tradisjonsrikt feltstevne i vakre Nord-Norge. Utfordrende løyper " +
+      "og spektakulær natur.",
+    coordinates: { lat: 67.2801, lng: 14.4756 }, // Bodø
+  },
+  {
+    id: "13",
+    name: "Nasjonal Skyteskolekonkurranse",
+    location: "Landsskytterstevnet Arena",
+    region: "Trøndelag",
+    eventType: "stevne",
+    startDate: getRelativeDate(-10),
+    endDate: getRelativeDate(-10),
+    startTime: "09:00",
+    endTime: "14:00",
+    targetCount: 20,
+    slotDuration: 20,
+    totalSlots: calcTotalSlots(
+      getRelativeDate(-10),
+      getRelativeDate(-10),
+      "09:00",
+      "14:00",
+      20,
+      20
+    ),
+    status: "open",
+    classes: ["Nybygger", "Aspirant", "Rekrutt", "Eldre Rekrutt"],
+    type: "outdoor",
+    organizer: "Det Frivillige Skyttervesen",
+    description:
+      "Ungdommens store dag! Konkurranse for deltakere på Skyteskolen " +
+      "fra hele landet.",
+    coordinates: { lat: 63.4305, lng: 10.3951 }, // Example, assuming near Fiska
+  },
+  {
+    id: "14",
+    name: "Kretsmesterskap Grovfelt Akershus",
+    location: "Østmarka Skytefelt",
+    region: "Viken",
+    eventType: "stevne",
+    startDate: getRelativeDate(8),
+    endDate: getRelativeDate(8),
+    startTime: "09:00",
+    endTime: "15:00",
+    targetCount: 8,
+    slotDuration: 45,
+    totalSlots: calcTotalSlots(
+      getRelativeDate(8),
+      getRelativeDate(8),
+      "09:00",
+      "15:00",
+      8,
+      45
+    ),
+    status: "closed",
+    classes: ["V55", "V65", "V73", "Klasse 1-5"],
+    type: "outdoor",
+    organizer: "Akershus Skyttersamlag",
+    description:
+      "Kretsmesterskap for grovfelt i Akershus. Dessverre avlyst pga. dårlig vær.",
+    coordinates: { lat: 59.8837, lng: 10.9328 }, // Eastern Oslo area
+  },
+  {
+    id: "15",
+    name: "Innendørs Stangskyting NM",
+    location: "Trondheim Skytehall",
+    region: "Trøndelag",
+    eventType: "stevne",
+    startDate: getRelativeDate(60),
+    endDate: getRelativeDate(60),
+    startTime: "10:00",
+    endTime: "17:00",
+    targetCount: 6,
+    slotDuration: 60,
+    totalSlots: calcTotalSlots(
+      getRelativeDate(60),
+      getRelativeDate(60),
+      "10:00",
+      "17:00",
+      6,
+      60
+    ),
+    status: "closed",
+    classes: ["Åpen", "Damer", "Veteran"],
+    type: "indoor",
+    organizer: "Trondheim Skytterlag",
+    description:
+      "Norgesmesterskap i innendørs stangskyting. Kun for inviterte skyttere.",
+    coordinates: { lat: 63.4305, lng: 10.3951 }, // Trondheim
+  },
+
+  // --- Møter (Meetings) ---
   {
     id: "m1",
     name: "Årsmøte 2025",
     location: "DFS Sentral, Oslo",
     region: "Oslo",
     eventType: "møte",
-    startDate: "2025-03-15",
-    endDate: "2025-03-15",
+    startDate: getRelativeDate(20),
+    endDate: getRelativeDate(20),
     startTime: "10:00",
     endTime: "14:00",
     totalSlots: 50,
     status: "open",
     organizer: "DFS Sentral",
     description:
-      "Årsmøte for alle medlemmer. Velkommen til generalforsamling med valg av nytt styre og vedtektsendringer.",
+      "Årsmøte for alle medlemmer. Velkommen til generalforsamling " +
+      "med valg av nytt styre og vedtektsendringer.",
     coordinates: { lat: 59.9139, lng: 10.7522 }, // Oslo
     meetingType: "ordinært",
     agenda: [
@@ -208,8 +391,8 @@ export const mockCompetitions: Competition[] = [
     location: "Sunnfjord Skytterlag, Dale",
     region: "Vestland",
     eventType: "møte",
-    startDate: "2025-09-02",
-    endDate: "2025-09-02",
+    startDate: getRelativeDate(-7),
+    endDate: getRelativeDate(-7),
     startTime: "19:00",
     endTime: "21:00",
     totalSlots: 12,
@@ -226,22 +409,99 @@ export const mockCompetitions: Competition[] = [
       "Eventuelt",
     ],
   },
-  // Kurs
+  // --- New Meetings ---
+  {
+    id: "m3",
+    name: "Medlemsmøte Toten",
+    location: "Toten Skytterlag Klubbhus",
+    region: "Innlandet",
+    eventType: "møte",
+    startDate: getRelativeDate(40),
+    endDate: getRelativeDate(40),
+    startTime: "18:00",
+    endTime: "20:00",
+    totalSlots: 30,
+    status: "open",
+    organizer: "Toten Skytterlag",
+    description:
+      "Åpent medlemsmøte for alle interesserte. Diskusjon om kommende " +
+      "arrangementer og sosiale aktiviteter.",
+    coordinates: { lat: 60.7945, lng: 10.6919 }, // Toten
+    meetingType: "ekstraordinært",
+    agenda: [
+      "Presentasjon av nye baneplaner",
+      "Diskusjon om juleavslutning",
+      "Innspill fra medlemmer",
+      "Enkel servering",
+    ],
+  },
+  {
+    id: "m4",
+    name: "Region Vestland: Styreledersamling",
+    location: "Thon Hotel Sandven, Norheimsund",
+    region: "Vestland",
+    eventType: "møte",
+    startDate: getRelativeDate(70),
+    endDate: getRelativeDate(71),
+    startTime: "16:00",
+    endTime: "12:00", // Next day, ends at noon
+    totalSlots: 25,
+    status: "open",
+    organizer: "DFS Region Vestland",
+    description:
+      "Årlig samling for styreledere i skytterlagene i Vestland. Fokus på " +
+      "ledelse, rekruttering og fremtidsplaner.",
+    coordinates: { lat: 60.3653, lng: 6.1368 }, // Norheimsund
+    meetingType: "ordinært",
+    agenda: [
+      "Velkomst og middag (dag 1)",
+      "Innlegg: Rekruttering i skyttersporten",
+      "Workshop: Fremtidens skytterlag",
+      "Oppsummering og lunsj (dag 2)",
+    ],
+  },
+  {
+    id: "m5",
+    name: "Online Trenerforum",
+    location: "Zoom (Online)",
+    region: "Nasjonalt",
+    eventType: "møte",
+    startDate: getRelativeDate(30),
+    endDate: getRelativeDate(30),
+    startTime: "19:30",
+    endTime: "21:00",
+    totalSlots: 100,
+    status: "closed", // Already happened
+    organizer: "DFS Trenerkomité",
+    description:
+      "Online forum for skyttertrenere. Diskusjon av nye treningsmetoder " +
+      "og erfautveksling.",
+    coordinates: { lat: 0, lng: 0 }, // Not physical location
+    meetingType: "ordinært",
+    agenda: [
+      "Introduksjon av ny treningsressurs",
+      "Q&A med landslagstrener",
+      "Erfaringsdeling i grupper",
+    ],
+  },
+
+  // --- Kurs (Courses) ---
   {
     id: "k1",
     name: "Sikkerhetskurs for Våpenholdere",
     location: "Bærum Skytebane",
     region: "Oslo",
     eventType: "kurs",
-    startDate: "2025-06-10",
-    endDate: "2025-06-11",
+    startDate: getRelativeDate(25),
+    endDate: getRelativeDate(26),
     startTime: "09:00",
     endTime: "16:00",
     totalSlots: 20,
     status: "open",
     organizer: "DFS Sentral",
     description:
-      "Obligatorisk sikkerhetskurs for alle våpenholdere. Kurset dekker våpenbehandling, sikkerhet og lover.",
+      "Obligatorisk sikkerhetskurs for alle våpenholdere. Kurset dekker " +
+      "våpenbehandling, sikkerhet og lover.",
     coordinates: { lat: 59.9407, lng: 10.4946 }, // Bærum
     instructor: "Erik Hansen",
     prerequisites: ["Gyldig våpenbevis"],
@@ -253,19 +513,83 @@ export const mockCompetitions: Competition[] = [
     location: "Toten Skytterlag",
     region: "Innlandet",
     eventType: "kurs",
-    startDate: "2025-05-20",
-    endDate: "2025-05-20",
+    startDate: getRelativeDate(18),
+    endDate: getRelativeDate(18),
     startTime: "10:00",
     endTime: "15:00",
     totalSlots: 15,
     status: "open",
     organizer: "Toten Skytterlag",
     description:
-      "Intensivkurs i skytingsteknikk for nybegynnere. Lære grunnleggende teknikk og sikkerhet.",
+      "Intensivkurs i skytingsteknikk for nybegynnere. Lære grunnleggende " +
+      "teknikk og sikkerhet.",
     coordinates: { lat: 60.7945, lng: 10.6919 }, // Toten
     instructor: "Anne Larsen",
     prerequisites: [],
     maxParticipants: 15,
+  },
+  // --- New Courses ---
+  {
+    id: "k3",
+    name: "Videregående Feltkurs",
+    location: "Sogndal Skytebane",
+    region: "Vestland",
+    eventType: "kurs",
+    startDate: getRelativeDate(80),
+    endDate: getRelativeDate(81),
+    startTime: "09:00",
+    endTime: "17:00",
+    totalSlots: 10,
+    status: "open",
+    organizer: "Sogndal Skytterlag",
+    description:
+      "Fordypningskurs i feltsskyting for erfarne skyttere. Fokus på " +
+      "vanskeliug terreng og vindlesing.",
+    coordinates: { lat: 61.2183, lng: 7.1009 }, // Sogndal
+    instructor: "Bjørn Dale",
+    prerequisites: ["Bestått nybegynnerkurs", "Minimum 2 års erfaring"],
+    maxParticipants: 10,
+  },
+  {
+    id: "k4",
+    name: "Laderkurs for Rifleammunisjon",
+    location: "Narvik Skytehall",
+    region: "Nordland",
+    eventType: "kurs",
+    startDate: getRelativeDate(28),
+    endDate: getRelativeDate(28),
+    startTime: "09:00",
+    endTime: "16:00",
+    totalSlots: 8,
+    status: "full", // Course is full
+    organizer: "Narvik Skytterlag",
+    description:
+      "Lær å lade din egen rifleammunisjon for presisjon og kostnadsbesparelser.",
+    coordinates: { lat: 68.4385, lng: 17.427 }, // Narvik
+    instructor: "Hans Petter Nilsen",
+    prerequisites: ["Sikkerhetskurs for våpenholdere"],
+    maxParticipants: 8,
+  },
+  {
+    id: "k5",
+    name: "Ungdomstrener 1 Kurs",
+    location: "Online",
+    region: "Nasjonalt",
+    eventType: "kurs",
+    startDate: getRelativeDate(22),
+    endDate: getRelativeDate(23),
+    startTime: "17:00",
+    endTime: "21:00", // Ends 21:00 on both days
+    totalSlots: 40,
+    status: "open",
+    organizer: "DFS Ungdomskomité",
+    description:
+      "Grunnleggende kurs for nye ungdomstrenere. Fokus på pedagogikk, " +
+      "sikkerhet og motivasjon.",
+    coordinates: { lat: 0, lng: 0 }, // Online
+    instructor: "Line Johansen",
+    prerequisites: ["Fylt 16 år"],
+    maxParticipants: 40,
   },
 ];
 
@@ -318,6 +642,9 @@ export const generateTimeSlots = (
       "Harald Sandviken",
       "Joakim Eriksen",
       "Ole Petter Hansen",
+      "Ingrid Jensen", // Added new names
+      "Martin Solberg",
+      "Solveig Bakke",
     ];
     const allClasses = [...BASE_CLASSES, ...SPECIAL_CLASSES];
     const randomName = bookingNames[slotSeed % bookingNames.length];

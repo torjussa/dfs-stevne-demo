@@ -2,7 +2,8 @@ import { EVENT_TEMPLATES } from "./Templates";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useEffect, useMemo, useState } from "react";
 
 const CLASSES = [
   "Nybegynner Ungdom",
@@ -26,7 +27,41 @@ type Props = {
 };
 
 export const ClassesSelect = ({ selectedTemplate }: Props) => {
-  const [isSelectAll, setIsSelectAll] = useState(false);
+  const initialRecommended = useMemo(() => {
+    if (!selectedTemplate) return new Set<string>();
+    const suggested =
+      EVENT_TEMPLATES[selectedTemplate as keyof typeof EVENT_TEMPLATES]
+        .suggestedClasses;
+    return new Set<string>(suggested);
+  }, [selectedTemplate]);
+
+  const [selected, setSelected] = useState<Set<string>>(initialRecommended);
+
+  useEffect(() => {
+    setSelected(initialRecommended);
+  }, [initialRecommended]);
+
+  const allSelected = selected.size === CLASSES.length;
+
+  const toggleAll = () => {
+    if (allSelected) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(CLASSES));
+    }
+  };
+
+  const toggleOne = (category: string, checked: boolean | "indeterminate") => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (checked === true) {
+        next.add(category);
+      } else {
+        next.delete(category);
+      }
+      return next;
+    });
+  };
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -35,38 +70,34 @@ export const ClassesSelect = ({ selectedTemplate }: Props) => {
           variant="ghost"
           size="sm"
           className="text-xs"
-          onClick={() => setIsSelectAll((prev) => !prev)}
+          onClick={toggleAll}
         >
-          Velg alle
+          {allSelected ? "Fjern alle" : "Velg alle"}
         </Button>
       </div>
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {CLASSES.map((category) => {
-          const isRecommended =
-            selectedTemplate &&
-            EVENT_TEMPLATES[
-              selectedTemplate as keyof typeof EVENT_TEMPLATES
-            ].suggestedClasses.includes(category);
+          const isRecommended = initialRecommended.has(category);
           return (
-            <div
+            <Label
               key={category}
-              className={`flex items-center gap-2 rounded-md border p-2 ${
+              className={`flex items-start gap-2 rounded-lg border p-3 hover:bg-accent/50 has-data-checked:border-primary/48 has-data-checked:bg-accent/50 ${
                 isRecommended ? "border-secondary bg-secondary/5" : ""
               }`}
             >
-              <input
-                type="checkbox"
-                id={category}
-                defaultChecked={isRecommended || false}
-                className="h-4 w-4 rounded border-border"
+              <Checkbox
+                checked={selected.has(category)}
+                onCheckedChange={(v) => toggleOne(category, v)}
               />
-              <Label
-                htmlFor={category}
-                className="cursor-pointer text-sm font-normal flex-1"
-              >
-                {category}
-              </Label>
-            </div>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm leading-4">{category}</p>
+                {isRecommended ? (
+                  <p className="text-xs text-muted-foreground">
+                    Anbefalt fra mal
+                  </p>
+                ) : null}
+              </div>
+            </Label>
           );
         })}
       </div>

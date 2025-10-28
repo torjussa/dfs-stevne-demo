@@ -14,13 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Copy, Plus, Trash2, Coffee } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DayConfig, Exercise } from "@/app/create-event/page";
+import { Calendar, Plus, Trash2, Coffee } from "lucide-react";
+import { DayConfig, Exercise } from "@/app/opprett-arrangement/page";
 import { EVENT_TEMPLATES } from "./Templates";
 import { PreviewSlots } from "./PreviewSlots";
-import { useEffect } from "react";
 
 type Props = {
   eventDays: string[];
@@ -180,10 +177,10 @@ export const Discipline = ({
   const currentDayConfig = dayConfigs.find((c) => c.date === selectedDay);
   return (
     <>
-      <CardHeader className="bg-primary/5 py-4">
+      <CardHeader className="">
         <CardTitle>
           <h3 className="flex items-center gap-2 text-lg font-semibold">
-            <Calendar className="h-5 w-5 text-accent" />
+            <Calendar className="h-5 w-5 " />
             Øvelser og lag
           </h3>
         </CardTitle>

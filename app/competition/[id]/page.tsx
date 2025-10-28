@@ -610,9 +610,7 @@ export default function CompetitionPage({
                                                       </Badge>
                                                     ) : !isAvailable ? (
                                                       <HoverCard>
-                                                        <HoverCardTrigger
-                                                          asChild
-                                                        >
+                                                        <HoverCardTrigger>
                                                           <Badge className="bg-gray-200 text-gray-600 border-gray-300 cursor-default flex items-center gap-1">
                                                             <Info className="h-3.5 w-3.5" />
                                                             Utilgjengelig

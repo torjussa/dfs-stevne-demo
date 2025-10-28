@@ -70,3 +70,46 @@ export interface Booking {
   userEmail: string;
   bookedAt: string;
 }
+
+export interface InsuranceInfo {
+  policyNumber: string;
+  coverageType: "weapon"; // Updated to reflect weapon insurance only
+  validFrom: string;
+  validTo: string;
+  status: "active" | "expired" | "pending";
+  amount: number; // Coverage amount in NOK (50,000 per weapon, max 165,000)
+  deductible: number; // Egenandel (1,000 kr per weapon)
+  maxWeapons: number; // Maksimalt antall våpen (8)
+}
+
+export interface MembershipFormData {
+  // Personal information
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  email: string;
+  phone: string;
+  address: string;
+  postalCode: string;
+  city: string;
+
+  // Membership details
+  clubName: string;
+  shootingClasses: string[]; // Which classes they can participate in
+  membershipType: "full" | "youth" | "senior" | "lifetime";
+
+  // Insurance (weapon insurance)
+  wantsInsurance: boolean;
+
+  // Payment
+  paymentMethod: "card" | "vipps" | "invoice";
+  acceptTerms: boolean;
+  acceptDataProcessing: boolean;
+
+  // Additional info
+  previousExperience?: string;
+  emergencyContact?: {
+    name: string;
+    phone: string;
+  };
+}

@@ -1,5 +1,4 @@
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
@@ -7,7 +6,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Settings } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 
 export const EventSettings = () => {
@@ -63,20 +62,18 @@ export const EventSettings = () => {
 
         {/* Payment Settings */}
         <div className="space-y-4">
-          <div className="flex items-center gap-4 ">
-            <input
-              type="checkbox"
+          <Label className="flex items-start gap-2 rounded-lg border p-3 hover:bg-accent/50 has-data-checked:border-primary/48 has-data-checked:bg-accent/50">
+            <Checkbox
               checked={hasPayment}
-              onChange={() => setHasPayment((prev) => !prev)}
-              className="h-4 w-4 rounded border-border"
+              onCheckedChange={(v) => setHasPayment(v === true)}
             />
-            <div className="space-y-1">
-              <Label className="text-base font-semibold">Betaling</Label>
-              <p className="text-sm text-muted-foreground">
+            <div className="flex flex-col gap-1">
+              <p className="text-sm leading-4">Betaling</p>
+              <p className="text-xs text-muted-foreground">
                 Krever stevnet startavgift?
               </p>
             </div>
-          </div>
+          </Label>
 
           {hasPayment && (
             <div className="grid gap-4 rounded-lg border bg-primary/5 p-4 md:grid-cols-3">
@@ -134,58 +131,48 @@ export const EventSettings = () => {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-4 ">
-                <input
-                  type="checkbox"
+              <Label className="">
+                <Checkbox
                   checked={allowAfterBilling}
-                  onChange={() => setAllowAfterBilling((prev) => !prev)}
-                  className="h-4 w-4 rounded border-border"
+                  onCheckedChange={(v) => setAllowAfterBilling(v === true)}
                 />
-                <div className="space-y-1">
-                  <Label className="text-sm font-semibold">
-                    Tillat etterfakturering
-                  </Label>
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm leading-4">Tillat etterfakturering</p>
                 </div>
-              </div>
+              </Label>
             </div>
           )}
         </div>
 
         {/* Shooter Options */}
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-4 ">
-            <input
-              type="checkbox"
+          <Label className="flex items-start gap-2 rounded-lg border p-3 hover:bg-accent/50 has-data-checked:border-primary/48 has-data-checked:bg-accent/50">
+            <Checkbox
               checked={shooterCanChoose}
-              onChange={() => setShooterCanChoose((prev) => !prev)}
-              className="h-4 w-4 rounded border-border"
+              onCheckedChange={(v) => setShooterCanChoose(v === true)}
             />
-            <div className="space-y-1">
-              <Label className="text-sm font-semibold">
+            <div className="flex flex-col gap-1">
+              <p className="text-sm leading-4">
                 Skytter kan velge øvelse/skive
-              </Label>
+              </p>
               <p className="text-xs text-muted-foreground">
                 Tillat skyttere å velge hvilken øvelse og skive de vil skyte på
               </p>
             </div>
-          </div>
+          </Label>
 
-          <div className="flex items-center gap-4 ">
-            <input
-              type="checkbox"
+          <Label className="flex items-start gap-2 rounded-lg border p-3 hover:bg-accent/50 has-data-checked:border-primary/48 has-data-checked:bg-accent/50">
+            <Checkbox
               checked={isClassDetermining}
-              onChange={() => setIsClassDetermining((prev) => !prev)}
-              className="h-4 w-4 rounded border-border"
+              onCheckedChange={(v) => setIsClassDetermining(v === true)}
             />
-            <div className="space-y-1">
-              <Label className="text-sm font-semibold">
-                Klassesettende stevne
-              </Label>
+            <div className="flex flex-col gap-1">
+              <p className="text-sm leading-4">Klassesettende stevne</p>
               <p className="text-xs text-muted-foreground">
                 Poeng fra dette stevnet teller inn på skytterens klasse
               </p>
             </div>
-          </div>
+          </Label>
         </div>
       </CardContent>
     </>

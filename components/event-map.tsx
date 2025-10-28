@@ -181,11 +181,11 @@ export function EventMap({ competitions }: EventMapProps) {
             <span className="text-3xl">🗺️</span>
           </div>
           <h3 className="text-lg font-semibold mb-2">
-            Ingen eventer på kartet
+            Ingen arrangementer på kartet
           </h3>
           <p className="text-sm text-muted-foreground max-w-md">
-            Ingen av filtrede eventer har geografisk lokasjon tilgjengelig. Prøv
-            å justere filtrene eller se andre eventer.
+            Ingen av filtrede arrangementer har geografisk lokasjon
+            tilgjengelig. Prøv å justere filtrene eller se andre arrangementer.
           </p>
         </CardContent>
       </Card>
@@ -277,7 +277,7 @@ export function EventMap({ competitions }: EventMapProps) {
                           )}
                         </p>
                         <Link
-                          href={`/competition/${competition.id}`}
+                          href={`/arrangement/${competition.id}`}
                           className="inline-block text-xs font-medium text-primary hover:underline transition-colors"
                         >
                           Se detaljer →
@@ -294,16 +294,17 @@ export function EventMap({ competitions }: EventMapProps) {
       {/* Event List Sidebar */}
       <div className="w-80 rounded-lg border border-border bg-card overflow-hidden flex flex-col">
         <div className="p-4 border-b border-border bg-muted/30">
-          <h3 className="font-semibold text-sm">Eventer på kartet</h3>
+          <h3 className="font-semibold text-sm">Arrangementer på kartet</h3>
           <p className="text-xs text-muted-foreground">
             {visibleCompetitions.length} av {competitionsWithCoords.length}{" "}
-            eventer
+            arrangementer
           </p>
         </div>
         <div className="flex-1 overflow-y-auto">
           {visibleCompetitions.length === 0 ? (
             <div className="p-4 text-center text-sm text-muted-foreground">
-              Ingen eventer synlig i kartet. Zoom inn eller ut for å se eventer.
+              Ingen arrangementer synlig i kartet. Zoom inn eller ut for å se
+              arrangementer.
             </div>
           ) : (
             <div className="divide-y divide-border">
@@ -311,7 +312,7 @@ export function EventMap({ competitions }: EventMapProps) {
                 <Link
                   key={competition.id}
                   className="block p-4 hover:bg-muted/50 transition-colors cursor-pointer"
-                  href={`/competition/${competition.id}`}
+                  href={`/arrangement/${competition.id}`}
                 >
                   <div className="flex items-start gap-2 mb-2">
                     <div className="flex-1 min-w-0">

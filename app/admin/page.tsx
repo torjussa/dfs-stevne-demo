@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsPanel, TabsList, TabsTab } from "@/components/ui/tabs";
 import { Plus, Calendar, Users, Target } from "lucide-react";
 import Link from "next/link";
 import { mockCompetitions } from "@/lib/mock-data";
@@ -26,7 +26,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!isAuthenticated || !user?.isAdmin) {
-      router.push("/login");
+      router.push("/logg-inn");
     }
   }, [isAuthenticated, user, router]);
 
@@ -111,8 +111,8 @@ export default function AdminPage() {
         <Tabs defaultValue="competitions" className="space-y-6">
           <div className="flex items-center justify-between">
             <TabsList>
-              <TabsTrigger value="competitions">Stevner</TabsTrigger>
-              <TabsTrigger value="bookings">Reservasjoner</TabsTrigger>
+              <TabsTab value="competitions">Stevner</TabsTab>
+              <TabsTab value="bookings">Reservasjoner</TabsTab>
             </TabsList>
             <Button onClick={() => setShowCreateDialog(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -120,7 +120,7 @@ export default function AdminPage() {
             </Button>
           </div>
 
-          <TabsContent value="competitions" className="space-y-4">
+          <TabsPanel value="competitions" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Alle stevner</CardTitle>
@@ -132,9 +132,9 @@ export default function AdminPage() {
                 <CompetitionList competitions={mockCompetitions} />
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsPanel>
 
-          <TabsContent value="bookings" className="space-y-4">
+          <TabsPanel value="bookings" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Alle reservasjoner</CardTitle>
@@ -152,7 +152,7 @@ export default function AdminPage() {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsPanel>
         </Tabs>
 
         <div className="mt-8">

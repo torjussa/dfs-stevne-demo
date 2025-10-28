@@ -8,12 +8,17 @@ import {
   type ReactNode,
 } from "react";
 
+export type UserRole = "member" | "skytterlagsleder" | "admin";
+
 interface User {
   name: string;
   email: string;
-  isAdmin: boolean;
+  role: UserRole;
+  isAdmin: boolean; // Deprecated: use role instead
   classes: string[]; // allowed classes user can register as (base + special)
   baseClass: string; // user's main class
+  clubName?: string; // Name of the shooting club user belongs to
+  clubId?: string; // ID of the shooting club
 }
 
 interface AuthContextType {
@@ -37,6 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = () => {
+    // Check if user selected a specific role
+    const selectedRole = localStorage.getItem(
+      "selected-role"
+    ) as UserRole | null;
+
     const randomId = Math.floor(Math.random() * 10000);
     const names = [
       "Ola Nordmann",
@@ -65,7 +75,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     ];
     const name = names[Math.floor(Math.random() * names.length)];
     const email = `user${randomId}@example.com`;
-    const isAdmin = false;
+
+    // Use selected role or assign a random role (5% admin, 20% club leader, 75% member)
+    let role: UserRole;
+    if (
+      selectedRole &&
+      ["member", "skytterlagsleder", "admin"].includes(selectedRole)
+    ) {
+      role = selectedRole;
+      localStorage.removeItem("selected-role"); // Clear after use
+    } else {
+      const roleChance = Math.random();
+      role =
+        roleChance < 0.05
+          ? "admin"
+          : roleChance < 0.25
+          ? "skytterlagsleder"
+          : "member";
+    }
+
+    const isAdmin = role === "admin";
+
     // Choose a base class from the official set
     const baseClasses = [
       "NU",
@@ -85,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const baseClass = baseClasses[
       Math.floor(Math.random() * baseClasses.length)
     ] as string;
+
     // Optionally allow one special class in addition to the base
     const specialClasses = ["JEG", "KIK", "Å", "HK416"];
     const extra =
@@ -92,7 +123,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ? [specialClasses[Math.floor(Math.random() * specialClasses.length)]]
         : [];
     const classes = Array.from(new Set([baseClass, ...extra]));
-    const newUser: User = { name, email, isAdmin, classes, baseClass };
+
+    // Assign a club for club leaders and some members
+    const clubs = [
+      "Sunnfjord Skytterlag",
+      "Toten Skytterlag",
+      "Fiska Skyttarlag",
+      "Bergen Skytterlag",
+      "Løten Skytterlag",
+      "Trondheim Skytterlag",
+      "Bodø Skyttersamlag",
+      "Akershus Skyttersamlag",
+    ];
+    const clubName = clubs[Math.floor(Math.random() * clubs.length)];
+    const clubId = `club-${clubName.toLowerCase().replace(/\s+/g, "-")}`;
+
+    const newUser: User = {
+      name,
+      email,
+      role,
+      isAdmin,
+      classes,
+      baseClass,
+      clubName,
+      clubId,
+    };
     setUser(newUser);
     localStorage.setItem("shooting-app-user", JSON.stringify(newUser));
   };

@@ -1,36 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  ArrowLeft,
-  Save,
-  Check,
-  ChevronRight,
-  ChevronLeft,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Save, Check, ChevronRight, ChevronLeft } from "lucide-react";
 import { PreviousEvents } from "@/components/createEvent/PreviousEvents";
 import { EVENT_TEMPLATES, Templates } from "@/components/createEvent/Templates";
-import { ClassesSelect } from "@/components/createEvent/ClassesSelect";
 import { Discipline } from "@/components/createEvent/Discipline";
 import { EventSettings } from "@/components/createEvent/EventSettings";
 import { EventInformation } from "@/components/createEvent/EventInformation";
@@ -144,20 +119,6 @@ export default function Proposal1Page() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" asChild>
-              <Link href="/" className="gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Tilbake til oversikt
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="mb-2 text-3xl font-bold text-foreground">
@@ -187,7 +148,7 @@ export default function Proposal1Page() {
           )}
 
           {(selectedTemplate || copiedEvent) && (
-            <Card className="border-2 border-primary/20 ">
+            <Card className="">
               {/* Basic Info */}
               {currentStep === 1 && (
                 <EventInformation
@@ -213,7 +174,7 @@ export default function Proposal1Page() {
                 />
               )}
 
-              <div className="flex items-center justify-between border-t pt-6 p-4">
+              <div className="flex items-center justify-between ">
                 {/* <p className="text-sm text-muted-foreground">
                     <span className="text-destructive">*</span> Obligatoriske
                     felt
@@ -228,7 +189,7 @@ export default function Proposal1Page() {
                 >
                   Avbryt
                 </Button>
-                <div className="flex gap-2">
+                <CardFooter className="flex gap-2">
                   {currentStep !== 1 && (
                     <Button
                       variant="outline"
@@ -267,7 +228,7 @@ export default function Proposal1Page() {
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Button>
                   )}
-                </div>
+                </CardFooter>
               </div>
             </Card>
           )}

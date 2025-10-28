@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { memo, useMemo } from "react";
 import type { Competition } from "@/lib/types";
-import { useAuth } from "@/lib/auth-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Meter } from "@/components/ui/meter";
 import { Badge } from "@/components/ui/badge";
@@ -27,8 +26,6 @@ interface CompetitionCardProps {
 export const CompetitionCard = memo(function CompetitionCard({
   competition,
 }: CompetitionCardProps) {
-  const { isAuthenticated, user } = useAuth();
-
   const {
     totalSlots,
     userAvailable,
@@ -72,15 +69,12 @@ export const CompetitionCard = memo(function CompetitionCard({
   }, [competition.id, competition.totalSlots]);
 
   return (
-    <Link href={`/competition/${competition.id}`}>
+    <Link href={`/arrangement/${competition.id}`}>
       <Card className="hover:shadow-lg hover:border-primary/50 transition-all duration-200 cursor-pointer h-full group">
-        <CardContent className="p-6">
+        <CardContent className="">
           {/* Header */}
           <div className="mb-4">
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-xl font-bold text-foreground pr-2 line-clamp-2">
-                {competition.name}
-              </h3>
+            <div className="space-y-2 mb-2">
               <Badge
                 variant="outline"
                 className={`shrink-0 ${
@@ -95,6 +89,9 @@ export const CompetitionCard = memo(function CompetitionCard({
                 {competition.eventType === "møte" && "Møte"}
                 {competition.eventType === "kurs" && "Kurs"}
               </Badge>
+              <h3 className="text-xl font-bold text-foreground pr-2 line-clamp-2">
+                {competition.name}
+              </h3>
             </div>
             <p className="text-sm text-muted-foreground font-medium">
               {competition.organizer}

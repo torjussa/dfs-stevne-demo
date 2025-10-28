@@ -40,7 +40,7 @@ export const EventInformation = ({
 }: Props) => {
   return (
     <>
-      <CardHeader className="bg-primary/5 py-4">
+      <CardHeader className=" ">
         <CardTitle>Stevnedetaljer</CardTitle>
         <CardDescription>
           {copiedEvent

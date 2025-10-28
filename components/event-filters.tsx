@@ -89,7 +89,7 @@ export const EventFilters = memo(function EventFilters({
             </div>
             <div>
               <CardTitle className="text-lg font-semibold">
-                Filtrer eventer
+                Filtrer arrangementer
               </CardTitle>
             </div>
           </div>
@@ -107,7 +107,7 @@ export const EventFilters = memo(function EventFilters({
             <Input
               id="search"
               placeholder="Søk etter navn, arrangement eller beskrivelse..."
-              defaultValue={filters.search}
+              value={filters.search}
               onChange={(e) => onFiltersChange("search", e.target.value)}
               className="pl-9 h-10 border-muted-foreground/20 focus:border-primary/50 transition-colors"
             />
@@ -120,7 +120,8 @@ export const EventFilters = memo(function EventFilters({
             Eventtype
           </Label>
           <Select
-            defaultValue={filters.eventType}
+            key={`eventType-${filters.eventType}`}
+            value={filters.eventType}
             onValueChange={(value) => onFiltersChange("eventType", value)}
           >
             <SelectTrigger className="h-10 border-muted-foreground/20 focus:border-primary/50 transition-colors">
@@ -157,7 +158,8 @@ export const EventFilters = memo(function EventFilters({
             Region
           </Label>
           <Select
-            defaultValue={filters.region}
+            key={`region-${filters.region}`}
+            value={filters.region}
             onValueChange={(value) => onFiltersChange("region", value)}
           >
             <SelectTrigger className="h-9 border-muted-foreground/20 focus:border-primary/50 transition-colors">
@@ -183,7 +185,8 @@ export const EventFilters = memo(function EventFilters({
             Status
           </Label>
           <Select
-            defaultValue={filters.status}
+            key={`status-${filters.status}`}
+            value={filters.status}
             onValueChange={(value) => onFiltersChange("status", value)}
           >
             <SelectTrigger className="h-9 border-muted-foreground/20 focus:border-primary/50 transition-colors">

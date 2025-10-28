@@ -6,10 +6,11 @@ import {
   SortingState,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -149,7 +150,7 @@ export function EventTable({ data }: EventTableProps) {
           const competition = row.original;
           return (
             <Button asChild size="sm" variant="outline">
-              <Link href={`/competition/${competition.id}`}>Se detaljer</Link>
+              <Link href={`/arrangement/${competition.id}`}>Se detaljer</Link>
             </Button>
           );
         },
@@ -164,13 +165,19 @@ export function EventTable({ data }: EventTableProps) {
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
     state: {
       sorting,
     },
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-y-auto">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -204,7 +211,7 @@ export function EventTable({ data }: EventTableProps) {
                     if ((e.target as HTMLElement).closest("button, a")) {
                       return;
                     }
-                    router.push(`/competition/${competition.id}`);
+                    router.push(`/arrangement/${competition.id}`);
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -227,6 +234,32 @@ export function EventTable({ data }: EventTableProps) {
           )}
         </TableBody>
       </Table>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-end space-x-2 py-4 px-4 border-t">
+        <div className="flex items-center space-x-2">
+          <p className="text-sm text-muted-foreground">
+            Side {table.getState().pagination.pageIndex + 1} av{" "}
+            {table.getPageCount()}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
