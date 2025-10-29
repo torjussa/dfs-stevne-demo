@@ -199,7 +199,7 @@ export default function RapporterPage() {
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
             <IconChartBar className="h-8 w-8" />
-            Rapporter og statistikk
+            Elverum skytterlag 2024
           </h1>
           <p className="text-muted-foreground">
             Oversikt over medlemsutvikling, stevnedeltakelse og inntekter
