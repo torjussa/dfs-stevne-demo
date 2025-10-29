@@ -8,14 +8,14 @@ This is a DFS (Norwegian Shooting Federation) competition registration **fronten
 
 - **Framework**: Next.js 14+ with App Router
 - **Language**: TypeScript
-- **UI Library**: shadcn/ui components
+- **UI Library**: Base UI (coss/ui) components
 - **Styling**: Tailwind CSS
 - **State Management**: React Context (AuthContext)
 - **Icons**: Lucide React
 
 ## User Preferences
 
-- Prefer using existing or new shadcn components
+- Prefer using existing or new Base UI (coss/ui) components
 - Norwegian language interface
 - Desktop-first design approach
 - Clean, modern UI with good UX practices

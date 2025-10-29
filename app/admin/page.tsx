@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
@@ -16,12 +16,10 @@ import { Plus, Calendar, Users } from "lucide-react";
 import Link from "next/link";
 import { mockCompetitions } from "@/lib/mock-data";
 import { CompetitionList } from "@/components/admin/competition-list";
-import { CreateCompetitionDialog } from "@/components/admin/create-competition-dialog";
 
 export default function AdminPage() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || !user?.isAdmin) {
@@ -143,11 +141,6 @@ export default function AdminPage() {
           </Button>
         </div>
       </div>
-
-      <CreateCompetitionDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-      />
     </div>
   );
 }

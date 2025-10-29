@@ -160,6 +160,29 @@ data-day={day.date.toISOString().slice(0, 10)}
 formatMonthDropdown: (date) => new Intl.DateTimeFormat("en-US", { month: "short" }).format(date)
 ```
 
+### Mistake: Using DialogContent instead of DialogPopup with Base UI Dialog
+**Wrong**:
+```
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+<Dialog>
+  <DialogContent>
+    {/* content */}
+  </DialogContent>
+</Dialog>
+```
+
+**Correct**:
+```
+import { Dialog, DialogPopup } from "@/components/ui/dialog"
+<Dialog>
+  <DialogPopup>
+    {/* content */}
+  </DialogPopup>
+</Dialog>
+```
+
+Note: Base UI (coss/ui) uses `DialogPopup` instead of `DialogContent`. The import and usage should be updated accordingly.
+
 ### Mistake: Using a global booking session timer that affects the whole page
 **Wrong**:
 ```
