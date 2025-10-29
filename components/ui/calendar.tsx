@@ -7,6 +7,7 @@ import {
   ChevronRightIcon,
 } from "lucide-react";
 import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
+import { nb } from "date-fns/locale";
 
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -27,6 +28,7 @@ function Calendar({
 
   return (
     <DayPicker
+      locale={nb}
       showOutsideDays={showOutsideDays}
       className={cn(
         "bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
@@ -36,8 +38,9 @@ function Calendar({
       )}
       captionLayout={captionLayout}
       formatters={{
+        // Visible month labels in Norwegian while remaining deterministic
         formatMonthDropdown: (date) =>
-          date.toLocaleString("default", { month: "short" }),
+          new Intl.DateTimeFormat("nb-NO", { month: "short" }).format(date),
         ...formatters,
       }}
       classNames={{
@@ -190,7 +193,8 @@ function CalendarDayButton({
       ref={ref}
       variant="ghost"
       size="icon"
-      data-day={day.date.toLocaleDateString()}
+      // Use a stable, locale-invariant date string to avoid hydration mismatches
+      data-day={day.date.toISOString().slice(0, 10)}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&
