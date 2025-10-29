@@ -11,6 +11,7 @@ import {
   IconPlus,
   IconHome,
   IconUserPlus,
+  IconChartBar,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -29,7 +30,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/lib/auth-context";
 
-const getNavData = (isAdmin: boolean) => ({
+const getNavData = (isAdmin: boolean, isSkytterlagsleder: boolean) => ({
   navMain: [
     {
       title: "Hjem",
@@ -56,6 +57,15 @@ const getNavData = (isAdmin: boolean) => ({
       url: "/profil",
       icon: IconUser,
     },
+    ...(isSkytterlagsleder
+      ? [
+          {
+            title: "Rapporter",
+            url: "/rapporter",
+            icon: IconChartBar,
+          },
+        ]
+      : []),
     ...(isAdmin
       ? [
           {
@@ -87,7 +97,10 @@ const getNavData = (isAdmin: boolean) => ({
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
-  const data = getNavData(user?.isAdmin || false);
+  const data = getNavData(
+    user?.isAdmin || false,
+    user?.isSkytterlagsleder || false
+  );
 
   return (
     <Sidebar collapsible="icon" {...props}>

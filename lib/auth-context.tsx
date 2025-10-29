@@ -15,6 +15,7 @@ interface User {
   email: string;
   role: UserRole;
   isAdmin: boolean; // Deprecated: use role instead
+  isSkytterlagsleder: boolean; // Convenience check for skytterlagsleder role
   classes: string[]; // allowed classes user can register as (base + special)
   baseClass: string; // user's main class
   clubName?: string; // Name of the shooting club user belongs to
@@ -95,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const isAdmin = role === "admin";
+    const isSkytterlagsleder = role === "skytterlagsleder";
 
     // Choose a base class from the official set
     const baseClasses = [
@@ -143,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       role,
       isAdmin,
+      isSkytterlagsleder,
       classes,
       baseClass,
       clubName,
