@@ -22,7 +22,8 @@ export function HeroSection() {
         <div>
           <h1 className="text-2xl font-bold">{greeting}</h1>
           <p className="text-sm text-muted-foreground">
-            Finn og meld deg på arrangementer
+            Velkommen til DFS Påmeldinger, din portal for å melde deg på
+            arrangementer og stevner.
           </p>
         </div>
         <form action="/arrangement" className="flex gap-2 w-full md:w-auto">

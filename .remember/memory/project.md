@@ -92,3 +92,9 @@ This is a DFS (Norwegian Shooting Federation) competition registration **fronten
 
 - POC-ANALYSE.md contains comprehensive analysis of what's done, what's missing, and what's wrong
 - Analyses should include inline citations to `docs/` sources (file path + approx line numbers) when referencing requirements.
+
+## Booking/Reservation Preferences
+- Reservation timer should be per-slot, not global page/session
+- Start reservation when user clicks a slot and opens the booking dialog
+- Show lock state per-slot using `slot.isLocked` computed from active reservations
+- Clear reservation on dialog close (if not confirmed) and on successful booking
