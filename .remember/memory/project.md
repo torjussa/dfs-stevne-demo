@@ -24,6 +24,7 @@ This is a DFS (Norwegian Shooting Federation) competition registration **fronten
 - Use Base UI `Frame` component (`components/ui/frame`) for card-like containers instead of custom div structures
 - Home page should present a role-aware dashboard: upcoming events, quick actions, my registrations (when logged-in), notifications, stats, calendar and a map, with a hero + search.
  - Use locale-invariant date formatting for SSR/CSR parity (avoid `toLocaleString`/`toLocaleDateString` in markup). Prefer ISO 8601 `yyyy-MM-dd` for attributes/keys.
+ - Create Event start screen: do NOT show "Eller velg stevnetype"; only offer copy previous or start blank.
 
 ## Project Structure
 

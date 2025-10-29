@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 
 import { EVENT_TEMPLATES } from "@/components/createEvent/Templates";
-import { ClassesSelect } from "@/components/createEvent/ClassesSelect";
 import {
   CardHeader,
   CardTitle,
@@ -41,7 +40,7 @@ export const EventInformation = ({
   return (
     <>
       <CardHeader className=" ">
-        <CardTitle>Stevnedetaljer</CardTitle>
+        <CardTitle className="text-lg ">Stevnedetaljer</CardTitle>
         <CardDescription>
           {copiedEvent
             ? "Justér informasjonen fra det kopierte stevnet"
@@ -144,7 +143,6 @@ export const EventInformation = ({
             }
           />
         </div>
-        <ClassesSelect selectedTemplate={selectedTemplate} />
       </CardContent>
     </>
   );

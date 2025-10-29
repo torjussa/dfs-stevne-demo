@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Save, Check, ChevronRight, ChevronLeft } from "lucide-react";
 import { PreviousEvents } from "@/components/createEvent/PreviousEvents";
-import { EVENT_TEMPLATES, Templates } from "@/components/createEvent/Templates";
 import { Discipline } from "@/components/createEvent/Discipline";
 import { EventSettings } from "@/components/createEvent/EventSettings";
 import { EventInformation } from "@/components/createEvent/EventInformation";
@@ -93,18 +92,6 @@ export default function Proposal1Page() {
     setDayConfigs(newConfigs);
   };
 
-  const handleTemplateSelect = (template: string) => {
-    setSelectedTemplate(template);
-    if (!eventName) {
-      const month = new Date().toLocaleDateString("nb-NO", { month: "long" });
-      setEventName(
-        `${month}stevnet ${
-          EVENT_TEMPLATES[template as keyof typeof EVENT_TEMPLATES].name
-        }`
-      );
-    }
-  };
-
   const handleCopyEvent = (eventId: string) => {
     setCopiedEvent(eventId);
     setEventName("Oktoberstevnet innendørs 2025");
@@ -142,20 +129,37 @@ export default function Proposal1Page() {
         </div>
 
         <div className="mx-auto max-w-5xl space-y-6">
-          {/* Copy from previous event */}
+          {/* Start state: choose copy or start new */}
           {!(selectedTemplate || copiedEvent) && (
-            <PreviousEvents
-              copiedEvent={copiedEvent}
-              handleCopyEvent={handleCopyEvent}
-            />
-          )}
+            <div className="grid gap-6 lg:grid-cols-2">
+              <PreviousEvents
+                copiedEvent={copiedEvent}
+                handleCopyEvent={handleCopyEvent}
+              />
 
-          {/* Template selection */}
-          {!(selectedTemplate || copiedEvent) && (
-            <Templates
-              selectedTemplate={selectedTemplate}
-              handleTemplateSelect={handleTemplateSelect}
-            />
+              <Card className="border-2 border-primary/40 py-4 grid place-content-center">
+                <CardContent className="space-y-4 text-center">
+                  <div className="space-y-2">
+                    <h2 className="text-xl font-semibold">Lag nytt stevne</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Begynn helt fra blankt og fyll inn detaljer i neste steg.
+                    </p>
+                  </div>
+                </CardContent>
+                <CardFooter className="">
+                  <Button
+                    size="lg"
+                    className="w-full"
+                    onClick={() => {
+                      setSelectedTemplate("blank");
+                      setCopiedEvent(null);
+                    }}
+                  >
+                    Lag nytt stevne
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
           )}
 
           {(selectedTemplate || copiedEvent) && (
@@ -190,71 +194,60 @@ export default function Proposal1Page() {
                     <span className="text-destructive">*</span> Obligatoriske
                     felt
                   </p> */}
-                <Button
-                  onClick={() => {
-                    setSelectedTemplate(null);
-                    setCopiedEvent(null);
-                  }}
-                  variant="ghost"
-                  size="lg"
-                >
-                  Avbryt
-                </Button>
-                <CardFooter className="flex gap-2">
-                  {currentStep !== 1 && (
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={goToPreviousStep}
-                    >
-                      <ChevronLeft className="mr-2 h-4 w-4" />
-                      Tilbake
-                    </Button>
-                  )}
-                  {currentStep === totalSteps ? (
-                    <Button
-                      size="lg"
-                      onClick={handleSave}
-                      disabled={!eventName}
-                    >
-                      {showSuccess ? (
-                        <>
-                          <Check className="mr-2 h-4 w-4" />
-                          Stevne opprettet!
-                        </>
-                      ) : (
-                        <>
-                          <Save className="mr-2 h-4 w-4" />
-                          Opprett stevne
-                        </>
-                      )}
-                    </Button>
-                  ) : (
-                    <Button
-                      size="lg"
-                      onClick={goToNextStep}
-                      /*  disabled={!canProceedToStep2} */
-                    >
-                      Neste
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  )}
+
+                <CardFooter className="flex gap-2 justify-between w-full">
+                  <Button
+                    onClick={() => {
+                      setSelectedTemplate(null);
+                      setCopiedEvent(null);
+                    }}
+                    variant="ghost"
+                    size="lg"
+                  >
+                    Avbryt
+                  </Button>
+                  <div className="flex gap-2">
+                    {currentStep !== 1 && (
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        onClick={goToPreviousStep}
+                      >
+                        <ChevronLeft className="mr-2 h-4 w-4" />
+                        Tilbake
+                      </Button>
+                    )}
+                    {currentStep === totalSteps ? (
+                      <Button
+                        size="lg"
+                        onClick={handleSave}
+                        disabled={!eventName}
+                      >
+                        {showSuccess ? (
+                          <>
+                            <Check className="mr-2 h-4 w-4" />
+                            Stevne opprettet!
+                          </>
+                        ) : (
+                          <>
+                            <Save className="mr-2 h-4 w-4" />
+                            Opprett stevne
+                          </>
+                        )}
+                      </Button>
+                    ) : (
+                      <Button
+                        size="lg"
+                        onClick={goToNextStep}
+                        /*  disabled={!canProceedToStep2} */
+                      >
+                        Neste
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </CardFooter>
               </div>
-            </Card>
-          )}
-
-          {!selectedTemplate && !copiedEvent && (
-            <Card className="border-dashed">
-              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                <ChevronRight className="mb-4 h-12 w-12 text-muted-foreground" />
-                <p className="text-lg font-medium text-muted-foreground">
-                  Velg en stevnetype eller kopier et stevne for å starte
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Dette gjør opprettelsen mye raskere
-                </p>
-              </CardContent>
             </Card>
           )}
         </div>

@@ -21,8 +21,10 @@ export const EventSettings = () => {
   const [allowAfterBilling, setAllowAfterBilling] = useState(false);
   return (
     <>
-      <CardHeader className="bg-primary/5 py-4">
-        <CardTitle>Stevneinnstillinger</CardTitle>
+      <CardHeader>
+        <CardTitle className="text-lg font-semibold">
+          Stevneinnstillinger
+        </CardTitle>
         <CardDescription>
           Konfigurer påmelding, betaling og klasseregler
         </CardDescription>

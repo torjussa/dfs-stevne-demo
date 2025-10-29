@@ -31,8 +31,13 @@ import {
   Copy,
   AlertCircle,
   Lock,
-  Users,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogPopup,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { DayConfig, Exercise, Squad } from "@/app/opprett-arrangement/page";
 import { EVENT_TEMPLATES } from "./Templates";
 import { PreviewSlots } from "./PreviewSlots";
@@ -57,6 +62,10 @@ export const Discipline = ({
   setSelectedDay,
 }: Props) => {
   const [expandedExercises, setExpandedExercises] = useState<string[]>([]);
+  const [selectedSquad, setSelectedSquad] = useState<{
+    exerciseId: string;
+    squadIndex: number;
+  } | null>(null);
 
   // Helper to validate exercise
   const isExerciseValid = (exercise: Exercise): boolean => {
@@ -85,20 +94,17 @@ export const Discipline = ({
   };
 
   const addExercise = (date: string) => {
+    const templateData = selectedTemplate
+      ? EVENT_TEMPLATES[selectedTemplate as keyof typeof EVENT_TEMPLATES]
+      : undefined;
     const newExercise: Exercise = {
       id: `ex-${Date.now()}`,
       name: "Ny øvelse",
       range: "Bane 1",
       startTime: "09:00",
-      interval: selectedTemplate
-        ? EVENT_TEMPLATES[selectedTemplate as keyof typeof EVENT_TEMPLATES]
-            .defaultInterval
-        : 35,
+      interval: templateData?.defaultInterval ?? 35,
       numSquads: 10,
-      capacity: selectedTemplate
-        ? EVENT_TEMPLATES[selectedTemplate as keyof typeof EVENT_TEMPLATES]
-            .defaultCapacity
-        : 10,
+      capacity: templateData?.defaultCapacity ?? 10,
       breaks: [],
     };
 
@@ -459,7 +465,7 @@ export const Discipline = ({
                     <Tabs defaultValue="setup" className="space-y-4">
                       <TabsList className="grid w-full grid-cols-3">
                         <TabsTab value="setup">Oppsett</TabsTab>
-                        <TabsTab value="squads">Lag</TabsTab>
+                        <TabsTab value="preview">Lag</TabsTab>
                         <TabsTab value="rules">Restriksjoner</TabsTab>
                       </TabsList>
 
@@ -678,299 +684,26 @@ export const Discipline = ({
                         </div>
                       </TabsPanel>
 
-                      <TabsPanel value="squads" className="space-y-4">
-                        <div className="space-y-3">
-                          <div>
-                            <Label className="text-base">
-                              Lag og tidsluker
-                            </Label>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Tilpass individuelle lag og tidsluker
-                            </p>
-                          </div>
-
-                          <div className="border rounded-lg p-4">
-                            <PreviewSlots
-                              exercise={exercise}
-                              eventDays={eventDays}
-                            />
-                          </div>
-
-                          <div className="border rounded-lg p-4 space-y-4">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-sm font-medium">
-                                Individuelle lag
-                              </Label>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <div className="flex items-center">
-                                  <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
-                                  <span>Åpen</span>
-                                </div>
-                                <div className="flex items-center ml-2">
-                                  <div className="w-3 h-3 rounded-full bg-gray-400 mr-1"></div>
-                                  <span>Låst</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-                              {ensureSquads(exercise).map((squad) => {
-                                // Calculate the squad's start time
-                                const baseMinutes =
-                                  Number.parseInt(
-                                    exercise.startTime.split(":")[0]
-                                  ) *
-                                    60 +
-                                  Number.parseInt(
-                                    exercise.startTime.split(":")[1]
-                                  );
-
-                                // Add time for previous squads and breaks
-                                let squadMinutes =
-                                  baseMinutes + squad.index * exercise.interval;
-                                for (const breakItem of exercise.breaks) {
-                                  if (breakItem.afterSquad <= squad.index) {
-                                    squadMinutes += breakItem.duration;
-                                  }
-                                }
-
-                                const hours = Math.floor(squadMinutes / 60);
-                                const minutes = squadMinutes % 60;
-                                const calculatedTime = `${hours
-                                  .toString()
-                                  .padStart(2, "0")}:${minutes
-                                  .toString()
-                                  .padStart(2, "0")}`;
-
-                                // Use custom time if set, otherwise use calculated time
-                                const displayTime =
-                                  squad.startTime || calculatedTime;
-
-                                return (
-                                  <div
-                                    key={squad.id}
-                                    className={`border rounded-lg p-3 ${
-                                      squad.isLocked
-                                        ? "bg-gray-100 dark:bg-gray-800"
-                                        : ""
-                                    }`}
-                                  >
-                                    <div className="flex items-center justify-between mb-3">
-                                      <div className="flex items-center">
-                                        <Users className="h-4 w-4 text-muted-foreground mr-2" />
-                                        <span className="font-medium">
-                                          Lag {squad.index + 1}
-                                        </span>
-                                        <span className="ml-2 text-sm text-muted-foreground">
-                                          ({displayTime})
-                                        </span>
-                                      </div>
-                                      <Button
-                                        variant={
-                                          squad.isLocked
-                                            ? "secondary"
-                                            : "outline"
-                                        }
-                                        size="sm"
-                                        onClick={() =>
-                                          toggleSquadLock(exercise.id, squad.id)
-                                        }
-                                      >
-                                        <Lock
-                                          className={`h-4 w-4 mr-1 ${
-                                            squad.isLocked
-                                              ? "text-destructive"
-                                              : ""
-                                          }`}
-                                        />
-                                        {squad.isLocked ? "Låst" : "Åpen"}
-                                      </Button>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-3">
-                                      <div className="space-y-1.5">
-                                        <Label className="text-xs text-muted-foreground">
-                                          Tidspunkt (override)
-                                        </Label>
-                                        <div className="flex items-center gap-2">
-                                          <Input
-                                            type="time"
-                                            value={squad.startTime || ""}
-                                            onChange={(e) =>
-                                              updateSquad(
-                                                exercise.id,
-                                                squad.id,
-                                                "startTime",
-                                                e.target.value || undefined
-                                              )
-                                            }
-                                            placeholder={calculatedTime}
-                                            className="flex-1"
-                                          />
-                                          {squad.startTime && (
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              onClick={() =>
-                                                updateSquad(
-                                                  exercise.id,
-                                                  squad.id,
-                                                  "startTime",
-                                                  undefined
-                                                )
-                                              }
-                                            >
-                                              Tilbakestill
-                                            </Button>
-                                          )}
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
-                                          Standard: {calculatedTime}
-                                        </p>
-                                      </div>
-
-                                      <div className="space-y-1.5">
-                                        <Label className="text-xs text-muted-foreground">
-                                          Kapasitet (override)
-                                        </Label>
-                                        <div className="flex items-center gap-2">
-                                          <Input
-                                            type="number"
-                                            min="1"
-                                            value={squad.capacity || ""}
-                                            onChange={(e) =>
-                                              updateSquad(
-                                                exercise.id,
-                                                squad.id,
-                                                "capacity",
-                                                e.target.value
-                                                  ? Number.parseInt(
-                                                      e.target.value
-                                                    )
-                                                  : undefined
-                                              )
-                                            }
-                                            placeholder={exercise.capacity.toString()}
-                                            className="flex-1"
-                                          />
-                                          {squad.capacity && (
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              onClick={() =>
-                                                updateSquad(
-                                                  exercise.id,
-                                                  squad.id,
-                                                  "capacity",
-                                                  undefined
-                                                )
-                                              }
-                                            >
-                                              Tilbakestill
-                                            </Button>
-                                          )}
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
-                                          Standard: {exercise.capacity}
-                                        </p>
-                                      </div>
-                                    </div>
-
-                                    <div className="mt-3 pt-3 border-t">
-                                      <Label className="text-xs text-muted-foreground mb-2 block">
-                                        Klasse-restriksjoner (override)
-                                      </Label>
-
-                                      <div className="flex flex-wrap gap-2">
-                                        {/* Use exercise-level restrictions by default */}
-                                        {!squad.allowedClasses && (
-                                          <Badge
-                                            variant="outline"
-                                            className="bg-muted/50"
-                                          >
-                                            Bruker øvelses-nivå restriksjoner
-                                          </Badge>
-                                        )}
-
-                                        {/* Button to set specific restrictions */}
-                                        {!squad.allowedClasses ? (
-                                          <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                              updateSquad(
-                                                exercise.id,
-                                                squad.id,
-                                                "allowedClasses",
-                                                exercise.allowedClasses || [
-                                                  ...BASE_CLASSES,
-                                                  ...SPECIAL_CLASSES,
-                                                ]
-                                              )
-                                            }
-                                          >
-                                            Sett egne restriksjoner
-                                          </Button>
-                                        ) : (
-                                          <>
-                                            <Badge
-                                              variant="secondary"
-                                              className="bg-blue-50 dark:bg-blue-900/20"
-                                            >
-                                              {squad.allowedClasses.length}{" "}
-                                              klasser tillatt
-                                            </Badge>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              onClick={() =>
-                                                updateSquad(
-                                                  exercise.id,
-                                                  squad.id,
-                                                  "allowedClasses",
-                                                  undefined
-                                                )
-                                              }
-                                            >
-                                              Bruk øvelses-nivå
-                                            </Button>
-                                            <Button
-                                              variant="outline"
-                                              size="sm"
-                                              onClick={() => {
-                                                // Open a dialog or expand a section to edit class restrictions
-                                                // For now, we'll just toggle a few classes as a demo
-                                                const currentClasses =
-                                                  squad.allowedClasses || [];
-                                                const allClasses = [
-                                                  ...BASE_CLASSES,
-                                                  ...SPECIAL_CLASSES,
-                                                ];
-                                                const newClasses =
-                                                  currentClasses.length ===
-                                                  allClasses.length
-                                                    ? ["3", "4", "5"] // Restrict to just a few classes
-                                                    : allClasses; // Allow all classes
-
-                                                updateSquad(
-                                                  exercise.id,
-                                                  squad.id,
-                                                  "allowedClasses",
-                                                  newClasses
-                                                );
-                                              }}
-                                            >
-                                              Rediger klasser
-                                            </Button>
-                                          </>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
+                      <TabsPanel value="preview" className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-base">
+                            Forhåndsvisning av lag
+                          </Label>
+                          <p className="text-sm text-muted-foreground">
+                            Klikk på et lag for å gjøre endringer
+                          </p>
+                        </div>
+                        <div className="border rounded-lg p-4">
+                          <PreviewSlots
+                            exercise={exercise}
+                            eventDays={eventDays}
+                            onSquadClick={(squadIndex) => {
+                              setSelectedSquad({
+                                exerciseId: exercise.id,
+                                squadIndex,
+                              });
+                            }}
+                          />
                         </div>
                       </TabsPanel>
 
@@ -1005,42 +738,50 @@ export const Discipline = ({
                                         ) ?? true
                                       }
                                       onCheckedChange={(checked) => {
+                                        const ALL_CLASSES = [
+                                          ...BASE_CLASSES,
+                                          ...SPECIAL_CLASSES,
+                                        ];
                                         setDayConfigs((prev) =>
                                           prev.map((config) =>
                                             config.date === selectedDay
                                               ? {
                                                   ...config,
                                                   exercises:
-                                                    config.exercises.map((ex) =>
-                                                      ex.id === exercise.id
-                                                        ? {
-                                                            ...ex,
-                                                            allowedClasses:
-                                                              checked
-                                                                ? [
-                                                                    ...(ex.allowedClasses || [
-                                                                      ...BASE_CLASSES,
-                                                                      ...SPECIAL_CLASSES,
-                                                                    ]),
-                                                                    cls,
-                                                                  ].filter(
-                                                                    (
-                                                                      c,
-                                                                      i,
-                                                                      arr
-                                                                    ) =>
-                                                                      arr.indexOf(
-                                                                        c
-                                                                      ) === i
-                                                                  )
-                                                                : ex.allowedClasses?.filter(
-                                                                    (
-                                                                      c: string
-                                                                    ) =>
-                                                                      c !== cls
+                                                    config.exercises.map(
+                                                      (ex) => {
+                                                        if (
+                                                          ex.id !== exercise.id
+                                                        )
+                                                          return ex;
+                                                        const current =
+                                                          ex.allowedClasses;
+                                                        if (checked) {
+                                                          // Add back this class if we're already in whitelist mode
+                                                          return current
+                                                            ? {
+                                                                ...ex,
+                                                                allowedClasses:
+                                                                  Array.from(
+                                                                    new Set([
+                                                                      ...current,
+                                                                      cls,
+                                                                    ])
                                                                   ),
-                                                          }
-                                                        : ex
+                                                              }
+                                                            : ex; // still all allowed
+                                                        }
+                                                        // Unchecked: move to whitelist (or update it) excluding this class
+                                                        const next = (
+                                                          current ?? ALL_CLASSES
+                                                        ).filter(
+                                                          (c) => c !== cls
+                                                        );
+                                                        return {
+                                                          ...ex,
+                                                          allowedClasses: next,
+                                                        };
+                                                      }
                                                     ),
                                                 }
                                               : config
@@ -1077,42 +818,48 @@ export const Discipline = ({
                                         ) ?? true
                                       }
                                       onCheckedChange={(checked) => {
+                                        const ALL_CLASSES = [
+                                          ...BASE_CLASSES,
+                                          ...SPECIAL_CLASSES,
+                                        ];
                                         setDayConfigs((prev) =>
                                           prev.map((config) =>
                                             config.date === selectedDay
                                               ? {
                                                   ...config,
                                                   exercises:
-                                                    config.exercises.map((ex) =>
-                                                      ex.id === exercise.id
-                                                        ? {
-                                                            ...ex,
-                                                            allowedClasses:
-                                                              checked
-                                                                ? [
-                                                                    ...(ex.allowedClasses || [
-                                                                      ...BASE_CLASSES,
-                                                                      ...SPECIAL_CLASSES,
-                                                                    ]),
-                                                                    cls,
-                                                                  ].filter(
-                                                                    (
-                                                                      c,
-                                                                      i,
-                                                                      arr
-                                                                    ) =>
-                                                                      arr.indexOf(
-                                                                        c
-                                                                      ) === i
-                                                                  )
-                                                                : ex.allowedClasses?.filter(
-                                                                    (
-                                                                      c: string
-                                                                    ) =>
-                                                                      c !== cls
+                                                    config.exercises.map(
+                                                      (ex) => {
+                                                        if (
+                                                          ex.id !== exercise.id
+                                                        )
+                                                          return ex;
+                                                        const current =
+                                                          ex.allowedClasses;
+                                                        if (checked) {
+                                                          return current
+                                                            ? {
+                                                                ...ex,
+                                                                allowedClasses:
+                                                                  Array.from(
+                                                                    new Set([
+                                                                      ...current,
+                                                                      cls,
+                                                                    ])
                                                                   ),
-                                                          }
-                                                        : ex
+                                                              }
+                                                            : ex;
+                                                        }
+                                                        const next = (
+                                                          current ?? ALL_CLASSES
+                                                        ).filter(
+                                                          (c) => c !== cls
+                                                        );
+                                                        return {
+                                                          ...ex,
+                                                          allowedClasses: next,
+                                                        };
+                                                      }
                                                     ),
                                                 }
                                               : config
@@ -1158,6 +905,285 @@ export const Discipline = ({
           Legg til øvelse
         </Button>
       </CardContent>
+      {/* Squad edit dialog */}
+      {selectedSquad &&
+        (() => {
+          const exercise = exercises.find(
+            (ex) => ex.id === selectedSquad.exerciseId
+          );
+          if (!exercise) return null;
+
+          const squads = ensureSquads(exercise);
+          const squad = squads[selectedSquad.squadIndex];
+          if (!squad) return null;
+
+          // Calculate base time
+          const baseMinutes =
+            Number.parseInt(exercise.startTime.split(":")[0]) * 60 +
+            Number.parseInt(exercise.startTime.split(":")[1]);
+          let squadMinutes = baseMinutes + squad.index * exercise.interval;
+          for (const breakItem of exercise.breaks) {
+            if (breakItem.afterSquad <= squad.index) {
+              squadMinutes += breakItem.duration;
+            }
+          }
+          const hours = Math.floor(squadMinutes / 60);
+          const minutes = squadMinutes % 60;
+          const calculatedTime = `${hours.toString().padStart(2, "0")}:${minutes
+            .toString()
+            .padStart(2, "0")}`;
+
+          return (
+            <Dialog
+              open={!!selectedSquad}
+              onOpenChange={(open) => !open && setSelectedSquad(null)}
+            >
+              <DialogPopup className="max-w-2xl">
+                <DialogTitle>Rediger Lag {squad.index + 1}</DialogTitle>
+                <DialogDescription>
+                  Tilpass innstillinger for dette laget
+                </DialogDescription>
+                <div className="space-y-6 mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Tidspunkt (overskriv)</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="time"
+                          value={squad.startTime || ""}
+                          onChange={(e) =>
+                            updateSquad(
+                              exercise.id,
+                              squad.id,
+                              "startTime",
+                              e.target.value || undefined
+                            )
+                          }
+                          placeholder={calculatedTime}
+                        />
+                        {squad.startTime && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              updateSquad(
+                                exercise.id,
+                                squad.id,
+                                "startTime",
+                                undefined
+                              )
+                            }
+                          >
+                            Tilbakestill
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Standard: {calculatedTime}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Kapasitet (overskriv)</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          type="number"
+                          min="1"
+                          value={squad.capacity || ""}
+                          onChange={(e) =>
+                            updateSquad(
+                              exercise.id,
+                              squad.id,
+                              "capacity",
+                              e.target.value
+                                ? Number.parseInt(e.target.value)
+                                : undefined
+                            )
+                          }
+                          placeholder={exercise.capacity.toString()}
+                        />
+                        {squad.capacity && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              updateSquad(
+                                exercise.id,
+                                squad.id,
+                                "capacity",
+                                undefined
+                              )
+                            }
+                          >
+                            Tilbakestill
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Standard: {exercise.capacity}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Button
+                      variant={squad.isLocked ? "secondary" : "outline"}
+                      onClick={() => toggleSquadLock(exercise.id, squad.id)}
+                      className="w-full"
+                    >
+                      <Lock
+                        className={`h-4 w-4 mr-2 ${
+                          squad.isLocked ? "text-destructive" : ""
+                        }`}
+                      />
+                      {squad.isLocked ? "Låst" : "Åpen"}
+                    </Button>
+                  </div>
+
+                  <div className="space-y-2 border-t pt-4">
+                    <Label>Klasse-restriksjoner (overskriv)</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {!squad.allowedClasses ? (
+                        <>
+                          <Badge variant="outline" className="bg-muted/50">
+                            Bruker øvelses-nivå restriksjoner
+                          </Badge>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              updateSquad(
+                                exercise.id,
+                                squad.id,
+                                "allowedClasses",
+                                exercise.allowedClasses || [
+                                  ...BASE_CLASSES,
+                                  ...SPECIAL_CLASSES,
+                                ]
+                              )
+                            }
+                          >
+                            Sett egne restriksjoner
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Badge
+                            variant="secondary"
+                            className="bg-blue-50 dark:bg-blue-900/20"
+                          >
+                            {squad.allowedClasses.length} klasser tillatt
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              updateSquad(
+                                exercise.id,
+                                squad.id,
+                                "allowedClasses",
+                                undefined
+                              )
+                            }
+                          >
+                            Bruk øvelses-nivå
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    {squad.allowedClasses && (
+                      <div className="mt-3 space-y-4">
+                        <div>
+                          <Label className="text-sm font-medium">
+                            Grunnklasser
+                          </Label>
+                          <div className="grid grid-cols-3 gap-3 mt-2">
+                            {BASE_CLASSES.map((cls) => (
+                              <div
+                                key={cls}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={`squad-${squad.id}-${cls}`}
+                                  checked={squad.allowedClasses?.includes(cls)}
+                                  onCheckedChange={(checked) => {
+                                    const current = squad.allowedClasses || [];
+                                    const next = checked
+                                      ? Array.from(new Set([...current, cls]))
+                                      : current.filter((c) => c !== cls);
+                                    updateSquad(
+                                      exercise.id,
+                                      squad.id,
+                                      "allowedClasses",
+                                      next
+                                    );
+                                  }}
+                                />
+                                <Label
+                                  htmlFor={`squad-${squad.id}-${cls}`}
+                                  className="text-sm cursor-pointer"
+                                >
+                                  {cls}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label className="text-sm font-medium">
+                            Spesialklasser
+                          </Label>
+                          <div className="grid grid-cols-3 gap-3 mt-2">
+                            {SPECIAL_CLASSES.map((cls) => (
+                              <div
+                                key={cls}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={`squad-${squad.id}-${cls}`}
+                                  checked={squad.allowedClasses?.includes(cls)}
+                                  onCheckedChange={(checked) => {
+                                    const current = squad.allowedClasses || [];
+                                    const next = checked
+                                      ? Array.from(new Set([...current, cls]))
+                                      : current.filter((c) => c !== cls);
+                                    updateSquad(
+                                      exercise.id,
+                                      squad.id,
+                                      "allowedClasses",
+                                      next
+                                    );
+                                  }}
+                                />
+                                <Label
+                                  htmlFor={`squad-${squad.id}-${cls}`}
+                                  className="text-sm cursor-pointer"
+                                >
+                                  {cls}
+                                </Label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      onClick={() => setSelectedSquad(null)}
+                    >
+                      Lukk
+                    </Button>
+                  </div>
+                </div>
+              </DialogPopup>
+            </Dialog>
+          );
+        })()}
     </>
   );
 };

@@ -62,11 +62,58 @@ export const EVENT_TEMPLATES = {
 type Props = {
   selectedTemplate: string | null;
   handleTemplateSelect: (templateKey: string) => void;
+  variant?: "card" | "inline";
 };
 export const Templates = ({
   selectedTemplate,
   handleTemplateSelect,
+  variant = "card",
 }: Props) => {
+  const Content = (
+    <>
+      <div className="flex items-center gap-2 px-4">
+        <Sparkles className="h-5 w-5 text-primary" />
+        <p className="font-medium">Eller velg stevnetype</p>
+      </div>
+      <p className="px-4 text-sm text-muted-foreground">
+        Hver mal har forhåndsinnstilte verdier tilpasset stevnetypen
+      </p>
+      <div className="px-4 pb-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {Object.entries(EVENT_TEMPLATES).map(([key, template]) => (
+            <Card
+              key={key}
+              className={`cursor-pointer transition-all hover:border-primary ${
+                selectedTemplate === key
+                  ? "border border-primary bg-primary/5"
+                  : ""
+              }`}
+              onClick={() => handleTemplateSelect(key)}
+            >
+              <CardContent className="p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-sm font-semibold">{template.name}</p>
+                  {selectedTemplate === key && (
+                    <Check className="h-4 w-4 text-primary" />
+                  )}
+                </div>
+                <div className="space-y-0.5 text-[11px] text-muted-foreground">
+                  <p>Intervall: {template.defaultInterval} min</p>
+                  <p>Kapasitet: {template.defaultCapacity}</p>
+                  <p>{template.suggestedClasses.length} klasser</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  if (variant === "inline") {
+    return <div className="space-y-2">{Content}</div>;
+  }
+
   return (
     <Card className="py-4">
       <CardHeader>
@@ -85,13 +132,13 @@ export const Templates = ({
               key={key}
               className={`cursor-pointer transition-all hover:border-primary ${
                 selectedTemplate === key
-                  ? "border-2 border-primary bg-primary/5"
+                  ? "border border-primary bg-primary/5"
                   : ""
               }`}
               onClick={() => handleTemplateSelect(key)}
             >
               <CardContent className="p-4">
-                <div className="mb-3 flex items-center justify-between">
+                <div className="mb-2 flex items-center justify-between">
                   <p className="font-semibold">{template.name}</p>
                   {selectedTemplate === key && (
                     <Check className="h-4 w-4 text-primary" />
