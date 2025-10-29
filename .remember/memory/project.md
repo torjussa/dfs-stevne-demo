@@ -23,6 +23,7 @@ This is a DFS (Norwegian Shooting Federation) competition registration **fronten
 - Prefer `Accordion` from `components/ui/accordion` for collapsible sections
 - Use Base UI `Frame` component (`components/ui/frame`) for card-like containers instead of custom div structures
 - Home page should present a role-aware dashboard: upcoming events, quick actions, my registrations (when logged-in), notifications, stats, calendar and a map, with a hero + search.
+ - Use locale-invariant date formatting for SSR/CSR parity (avoid `toLocaleString`/`toLocaleDateString` in markup). Prefer ISO 8601 `yyyy-MM-dd` for attributes/keys.
 
 ## Project Structure
 

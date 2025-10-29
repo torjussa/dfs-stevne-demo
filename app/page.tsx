@@ -11,6 +11,7 @@ import { NotificationsWidget } from "@/components/dashboard/notifications-widget
 import { CalendarWidget } from "@/components/dashboard/calendar-widget";
 import { MyRegistrationsWidget } from "@/components/dashboard/my-registrations-widget";
 import { SidebarNavigationHandler } from "@/components/sidebar-navigation-handler";
+import { LoginWidget } from "@/components/dashboard/login-widget";
 
 export default async function HomePage() {
   const [upcoming, stats, notifications] = await Promise.all([
@@ -26,6 +27,7 @@ export default async function HomePage() {
       <div className="grid grid-cols-1 align-start md:grid-cols-7 xl:grid-cols-8 lg:grid-cols-9 gap-4">
         <div className="xl:col-span-6 lg:col-span-6 md:col-span-4 space-y-4">
           <div className="grid grid-cols-2  gap-4">
+            <LoginWidget />
             <MyRegistrationsWidget />
             <NotificationsWidget items={notifications} />
           </div>

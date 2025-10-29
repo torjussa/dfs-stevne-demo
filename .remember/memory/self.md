@@ -144,4 +144,18 @@ import { SidebarNavigationHandler } from "@/components/sidebar-navigation-handle
 
 ```
 
+### Mistake: Locale-dependent date formatting caused hydration mismatch
+**Wrong**:
+```
+// In calendar day button attributes
+data-day={day.date.toLocaleDateString()}
+// And month dropdown using default locale
+formatMonthDropdown: (date) => date.toLocaleString("default", { month: "short" })
+```
+
+**Correct**:
+```
+// Use locale-invariant, stable formatting
+data-day={day.date.toISOString().slice(0, 10)}
+formatMonthDropdown: (date) => new Intl.DateTimeFormat("en-US", { month: "short" }).format(date)
 ```
