@@ -54,17 +54,12 @@ export default function CompetitionPage({
   // Simple booking dialog for møte/kurs
   const [showSimpleBooking, setShowSimpleBooking] = useState(false);
   // Mobile-specific UI removed – only desktop behavior remains
-  // Reservation window (10 min) per tidsrad (POC, lokal lagring per bruker)
+  // Reservation window (5 min) per tidsrad (POC, lokal lagring per bruker)
   const [reservations, setReservations] = useState<Map<string, number>>(
     new Map()
   ); // slotId -> expiresAt
   const [nowTs, setNowTs] = useState<number>(Date.now());
-  const RESERVATION_MINUTES = 10;
-  const SESSION_MINUTES = 15;
-  const [sessionExpiresAt, setSessionExpiresAt] = useState<number | null>(null);
-  const [hasRefreshedAfterExpiry, setHasRefreshedAfterExpiry] = useState(false);
-  const sessionStorageKey = (competitionId: string) =>
-    `dfs-session-${competitionId}-${user?.email || "anon"}`;
+  const RESERVATION_MINUTES = 5;
 
   const reservationStorageKey = (competitionId: string) =>
     `dfs-slot-reservations-${competitionId}-${user?.email || "anon"}`;
@@ -132,23 +127,6 @@ export default function CompetitionPage({
 
       // Load existing reservations and start ticker
       setReservations(loadReservations(competition.id));
-      // Initialize or read global session
-      try {
-        const raw = localStorage.getItem(sessionStorageKey(competition.id));
-        const stored = raw ? parseInt(raw, 10) : NaN;
-        const now = Date.now();
-        if (!isNaN(stored) && stored > now) {
-          setSessionExpiresAt(stored);
-        } else {
-          const exp = now + SESSION_MINUTES * 60 * 1000;
-          setSessionExpiresAt(exp);
-          localStorage.setItem(sessionStorageKey(competition.id), String(exp));
-        }
-      } catch {
-        const exp = Date.now() + SESSION_MINUTES * 60 * 1000;
-        setSessionExpiresAt(exp);
-      }
-      setHasRefreshedAfterExpiry(false);
     }
   }, [competition]);
   // Tick countdown and clear expired
@@ -223,17 +201,7 @@ export default function CompetitionPage({
     }
   };
 
-  useEffect(() => {
-    if (!competition || !sessionExpiresAt) return;
-    if (nowTs >= sessionExpiresAt && !hasRefreshedAfterExpiry) {
-      refreshSlotsFromStorage();
-      setSelectedSlots(new Set());
-      setReservations(new Map());
-      setHasRefreshedAfterExpiry(true);
-    }
-  }, [nowTs, sessionExpiresAt, competition, hasRefreshedAfterExpiry]);
-
-  // No manual restart; session auto-initializes on mount and expires automatically
+  // Removed global session timeout that affected the whole page
 
   const startReservation = (slotId: string) => {
     if (!competition) return;
@@ -241,6 +209,16 @@ export default function CompetitionPage({
     setReservations((prev) => {
       const next = new Map(prev);
       next.set(slotId, expiresAt);
+      persistReservations(competition.id, next);
+      return next;
+    });
+  };
+
+  const clearReservation = (slotId: string) => {
+    if (!competition) return;
+    setReservations((prev) => {
+      const next = new Map(prev);
+      next.delete(slotId);
       persistReservations(competition.id, next);
       return next;
     });
@@ -296,6 +274,8 @@ export default function CompetitionPage({
       return next;
     });
     setSelectedSlot(null);
+    // Clear any active reservation for this slot
+    clearReservation(slotId);
   };
 
   const handleUnbook = (targetId: string, slotId: string) => {
@@ -411,29 +391,7 @@ export default function CompetitionPage({
 
   return (
     <div className="min-h-screen bg-background">
-      {sessionExpiresAt && nowTs < sessionExpiresAt ? (
-        <div className="sticky top-0 left-0 z-20 border-b bg-amber-50 text-amber-900">
-          <div className="container mx-auto px-4 py-2 max-w-[1600px] flex items-center justify-between">
-            <span className="inline-flex items-center gap-2 text-sm font-medium">
-              <Clock className="h-4 w-4" />
-              {`Sesjon: ${String(
-                Math.floor((sessionExpiresAt - nowTs) / 1000 / 60)
-              ).padStart(2, "0")}:${String(
-                Math.floor(((sessionExpiresAt - nowTs) / 1000) % 60)
-              ).padStart(2, "0")}`}{" "}
-              – fullfør bookingene dine
-            </span>
-          </div>
-        </div>
-      ) : sessionExpiresAt ? (
-        <div className="sticky top-0 z-20 border-b bg-destructive/10 text-destructive">
-          <div className="container mx-auto px-4 py-2 max-w-[1600px] flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Sesjonen er utløpt – du har fått oppdatert tidspunkt og skiver
-            </span>
-          </div>
-        </div>
-      ) : null}
+      {/* Global session banner removed */}
       <header className="border-b border-border bg-card sticky top-0 z-10 shadow-sm">
         <div className="container mx-auto px-4 py-4 max-w-[1600px]">
           <div className="flex flex-wrap justify-between gap-4">
@@ -549,7 +507,7 @@ export default function CompetitionPage({
               </CardContent>
             </Card>
 
-            <div className="overflow-hidden">
+            <div className="overflow-auto">
               <div className="flex gap-6 pb-1" role="list">
                 {sortedDates.map((date) => {
                   const dateLabel = new Date(date).toLocaleDateString("no-NO", {
@@ -625,8 +583,6 @@ export default function CompetitionPage({
                             );
                             const key = `${date}|${time}`;
                             const isFull = displayAvailable === 0;
-                            // Per-row badge relies on slot reservations later
-                            const expiresAtRow = reservations.get(key);
 
                             return (
                               <AccordionItem
@@ -645,10 +601,13 @@ export default function CompetitionPage({
                                       </span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                      {expiresAtRow && expiresAtRow > nowTs ? (
+                                      {reservations.get(key) &&
+                                      reservations.get(key)! > nowTs ? (
                                         <Badge className="bg-amber-100 text-amber-900 border-amber-300">
                                           Reservert{" "}
-                                          {formatCountdown(expiresAtRow)}
+                                          {formatCountdown(
+                                            reservations.get(key)!
+                                          )}
                                         </Badge>
                                       ) : (
                                         <Badge
@@ -690,10 +649,15 @@ export default function CompetitionPage({
                                         const isBookedByUser =
                                           slot.bookedByName === user?.name;
 
+                                        const isLocked = (() => {
+                                          const exp = reservations.get(slot.id);
+                                          return !!exp && exp > nowTs;
+                                        })();
+
                                         return {
                                           slotKey: `${targetId}:${slot.id}`,
                                           targetId,
-                                          slot,
+                                          slot: { ...slot, isLocked },
                                           target,
                                           isBookedByUser,
                                           isAvailable,
@@ -702,6 +666,7 @@ export default function CompetitionPage({
                                     )}
                                     isAuthenticated={isAuthenticated}
                                     onReserve={(targetId, slotId, date) => {
+                                      startReservation(slotId);
                                       setSelectedSlot({
                                         targetId,
                                         slotId,
@@ -880,7 +845,14 @@ export default function CompetitionPage({
       {selectedSlot && (
         <BookingDialog
           open={!!selectedSlot}
-          onOpenChange={(open) => !open && setSelectedSlot(null)}
+          onOpenChange={(open) => {
+            if (!open) {
+              if (selectedSlot) {
+                clearReservation(selectedSlot.slotId);
+              }
+              setSelectedSlot(null);
+            }
+          }}
           onConfirm={(userName, userClass) => {
             if (selectedSlot.targetId === "multi") {
               handleMultiBooking(userName, userClass);

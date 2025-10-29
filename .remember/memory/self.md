@@ -159,3 +159,59 @@ formatMonthDropdown: (date) => date.toLocaleString("default", { month: "short" }
 data-day={day.date.toISOString().slice(0, 10)}
 formatMonthDropdown: (date) => new Intl.DateTimeFormat("en-US", { month: "short" }).format(date)
 ```
+
+### Mistake: Using DialogContent instead of DialogPopup with Base UI Dialog
+**Wrong**:
+```
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+<Dialog>
+  <DialogContent>
+    {/* content */}
+  </DialogContent>
+</Dialog>
+```
+
+**Correct**:
+```
+import { Dialog, DialogPopup } from "@/components/ui/dialog"
+<Dialog>
+  <DialogPopup>
+    {/* content */}
+  </DialogPopup>
+</Dialog>
+```
+
+Note: Base UI (coss/ui) uses `DialogPopup` instead of `DialogContent`. The import and usage should be updated accordingly.
+
+### Mistake: Using a global booking session timer that affects the whole page
+**Wrong**:
+```
+// Global session started on page load and rendered as a sticky banner
+const SESSION_MINUTES = 15;
+const [sessionExpiresAt, setSessionExpiresAt] = useState<number | null>(null);
+// ... initialize sessionExpiresAt in useEffect and show banner in UI
+{sessionExpiresAt && nowTs < sessionExpiresAt ? (/* banner */) : null}
+```
+
+**Correct**:
+```
+// No global session. Start a per-slot reservation only when user opens a slot dialog
+const startReservation = (slotId: string) => {
+  const expiresAt = Date.now() + 10 * 60 * 1000;
+  setReservations((prev) => {
+    const next = new Map(prev);
+    next.set(slotId, expiresAt);
+    persistReservations(competition.id, next);
+    return next;
+  });
+};
+
+// Derive isLocked for the specific slot
+const isLocked = (() => {
+  const exp = reservations.get(slot.id);
+  return !!exp && exp > nowTs;
+})();
+
+// Pass overridden slot to table and show lock UI per-slot
+slot: { ...slot, isLocked }
+```

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import {
   Dialog,
-  DialogContent,
+  DialogPopup,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -174,7 +174,7 @@ export function SimpleBookingDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogPopup>
         <DialogHeader>
           <DialogTitle>Påmelding til {competition.name}</DialogTitle>
           <DialogDescription>
@@ -405,7 +405,7 @@ export function SimpleBookingDialog({
             </>
           )}
         </form>
-      </DialogContent>
+      </DialogPopup>
     </Dialog>
   );
 }
