@@ -7,8 +7,8 @@ import { useEffect, useMemo, useState } from "react";
 
 const CLASSES = [
   "Nybegynner Ungdom",
-  "Friluft 11-13 år",
-  "Eldre Friluft 14-16 år",
+  "Rekrutt 11-13 år",
+  "Eldre Rekrutt",
   "Junior 16-17 år",
   "Eldre Junior 18 år",
   "Klasse 1",

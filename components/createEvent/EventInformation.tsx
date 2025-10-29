@@ -66,12 +66,12 @@ export const EventInformation = ({
             <Label htmlFor="organizer">
               Arrangør <span className="text-destructive">*</span>
             </Label>
-            <Select defaultValue="bæker">
+            <Select defaultValue="blaker">
               <SelectTrigger id="organizer">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="bæker">Bæker Skytterlag</SelectItem>
+                <SelectItem value="blaker">Blaker Skytterlag</SelectItem>
                 <SelectItem value="oslo">Oslo Skytterlag</SelectItem>
                 <SelectItem value="bergen">Bergen Skytterlag</SelectItem>
               </SelectContent>
@@ -83,7 +83,7 @@ export const EventInformation = ({
             <Input
               id="location"
               placeholder="Anleggsnavn"
-              defaultValue="Bæker Skyteanlegg"
+              defaultValue="Blaker Skyteanlegg"
             />
           </div>
 

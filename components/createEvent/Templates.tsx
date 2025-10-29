@@ -41,8 +41,8 @@ export const EVENT_TEMPLATES = {
     suggestedClasses: [
       "Klasse 1",
       "Klasse 2",
-      "Friluft 11-13 år",
-      "Eldre Friluft 14-16 år",
+      "Rekrutt 11-13 år",
+      "Eldre Rekrutt",
     ],
   },
   skogsløp: {
