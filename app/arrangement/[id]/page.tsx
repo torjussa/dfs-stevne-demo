@@ -507,7 +507,7 @@ export default function CompetitionPage({
               </CardContent>
             </Card>
 
-            <div className="overflow-hidden">
+            <div className="overflow-auto">
               <div className="flex gap-6 pb-1" role="list">
                 {sortedDates.map((date) => {
                   const dateLabel = new Date(date).toLocaleDateString("no-NO", {
