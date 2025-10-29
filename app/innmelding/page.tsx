@@ -47,6 +47,8 @@ export default function MembershipPage() {
   const [insuranceInfo, setInsuranceInfo] = useState<InsuranceInfo | null>(
     null
   );
+  const [isVippsLoading, setIsVippsLoading] = useState(false);
+  const [isExistingMember, setIsExistingMember] = useState(false);
 
   const handleInputChange = (field: keyof MembershipFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -58,7 +60,7 @@ export default function MembershipPage() {
         return !!(
           formData.firstName &&
           formData.lastName &&
-          formData.dateOfBirth &&
+          formData.nationalId &&
           formData.email &&
           formData.phone &&
           formData.address &&
@@ -90,6 +92,41 @@ export default function MembershipPage() {
 
   const handleBack = () => {
     setStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleVippsLogin = async () => {
+    // Reset state for fresh attempt
+    setIsExistingMember(false);
+    setIsVippsLoading(true);
+
+    // Mock 0.5s delay for Vipps authentication
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // Randomly determine if user is existing member (50/50 for demo)
+    const isExisting = Math.random() > 0.5;
+
+    if (isExisting) {
+      // User is already a member
+      setIsExistingMember(true);
+      toast.success("Innlogget med Vipps!");
+    } else {
+      // New user - auto-populate with user data
+      const mockUserData = {
+        firstName: "Ola",
+        lastName: "Nordmann",
+        nationalId: "15059012345",
+        email: "ola.nordmann@example.com",
+        phone: "+47 123 45 678",
+        address: "Storgata 10",
+        postalCode: "0150",
+        city: "Oslo",
+      };
+
+      setFormData((prev) => ({ ...prev, ...mockUserData }));
+      toast.success("Innlogget med Vipps!");
+    }
+
+    setIsVippsLoading(false);
   };
 
   const handleSubmit = () => {
@@ -180,108 +217,167 @@ export default function MembershipPage() {
 
         {/* Step 1: Personal Information */}
         {step === 1 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <UserPlus className="h-5 w-5" />
-                Personlig informasjon
-              </CardTitle>
-              <CardDescription>
-                Fyll ut din personlige informasjon
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">Fornavn *</Label>
-                  <Input
-                    id="firstName"
-                    placeholder="Fornavn"
-                    value={formData.firstName || ""}
-                    onChange={(e) =>
-                      handleInputChange("firstName", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Etternavn *</Label>
-                  <Input
-                    id="lastName"
-                    placeholder="Etternavn"
-                    value={formData.lastName || ""}
-                    onChange={(e) =>
-                      handleInputChange("lastName", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="dateOfBirth">Fødselsdato *</Label>
-                  <Input
-                    id="dateOfBirth"
-                    type="date"
-                    value={formData.dateOfBirth || ""}
-                    onChange={(e) =>
-                      handleInputChange("dateOfBirth", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">E-post *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="navn@example.com"
-                    value={formData.email || ""}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Telefon *</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+47 123 45 678"
-                    value={formData.phone || ""}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="address">Adresse *</Label>
-                  <Input
-                    id="address"
-                    placeholder="Gateadresse"
-                    value={formData.address || ""}
-                    onChange={(e) =>
-                      handleInputChange("address", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="postalCode">Postnummer *</Label>
-                  <Input
-                    id="postalCode"
-                    placeholder="0000"
-                    value={formData.postalCode || ""}
-                    onChange={(e) =>
-                      handleInputChange("postalCode", e.target.value)
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="city">Sted *</Label>
-                  <Input
-                    id="city"
-                    placeholder="Oslo"
-                    value={formData.city || ""}
-                    onChange={(e) => handleInputChange("city", e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button onClick={handleNext}>Neste</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <>
+            <div className="flex justify-center">
+              <Button
+                type="button"
+                onClick={handleVippsLogin}
+                disabled={isVippsLoading}
+                className="w-full max-w-sm h-12 bg-[#FF5B24] hover:bg-[#FF5B24]/90 text-white font-semibold disabled:opacity-70"
+              >
+                {isVippsLoading ? (
+                  <span className="flex items-center gap-2">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Logger inn...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-white/20">
+                      <span className="font-bold text-sm">V</span>
+                    </div>
+                    Logg inn med Vipps
+                  </span>
+                )}
+              </Button>
+            </div>
+
+            {isExistingMember ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex flex-col items-center justify-center py-8 gap-4">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+                      <CheckCircle className="h-8 w-8 text-green-600" />
+                    </div>
+                    <h3 className="text-xl font-semibold">
+                      Du er allerede medlem i DFS
+                    </h3>
+                    <p className="text-sm text-muted-foreground text-center">
+                      Ditt medlemskap er aktivt. Du kan se din profilinformasjon
+                      og medlemsdetaljer på din side.
+                    </p>
+                    <Button
+                      onClick={() => router.push("/profil")}
+                      className="w-full max-w-sm h-12 mt-4"
+                    >
+                      Gå til min side
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <p className="text-center text-muted-foreground py-4">
+                  Eller fyll ut manuelt:
+                </p>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <UserPlus className="h-5 w-5" />
+                      Personlig informasjon
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName">Fornavn *</Label>
+                        <Input
+                          id="firstName"
+                          placeholder="Fornavn"
+                          value={formData.firstName || ""}
+                          onChange={(e) =>
+                            handleInputChange("firstName", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName">Etternavn *</Label>
+                        <Input
+                          id="lastName"
+                          placeholder="Etternavn"
+                          value={formData.lastName || ""}
+                          onChange={(e) =>
+                            handleInputChange("lastName", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="nationalId">Fødselsnummer *</Label>
+                        <Input
+                          id="nationalId"
+                          placeholder="11 siffer"
+                          value={formData.nationalId || ""}
+                          onChange={(e) =>
+                            handleInputChange("nationalId", e.target.value)
+                          }
+                          maxLength={11}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">E-post *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="navn@example.com"
+                          value={formData.email || ""}
+                          onChange={(e) =>
+                            handleInputChange("email", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Telefon *</Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          placeholder="+47 123 45 678"
+                          value={formData.phone || ""}
+                          onChange={(e) =>
+                            handleInputChange("phone", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Adresse *</Label>
+                        <Input
+                          id="address"
+                          placeholder="Gateadresse"
+                          value={formData.address || ""}
+                          onChange={(e) =>
+                            handleInputChange("address", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="postalCode">Postnummer *</Label>
+                        <Input
+                          id="postalCode"
+                          placeholder="0000"
+                          value={formData.postalCode || ""}
+                          onChange={(e) =>
+                            handleInputChange("postalCode", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="city">Sted *</Label>
+                        <Input
+                          id="city"
+                          placeholder="Oslo"
+                          value={formData.city || ""}
+                          onChange={(e) =>
+                            handleInputChange("city", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button onClick={handleNext}>Neste</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
+          </>
         )}
 
         {/* Step 2: Membership Details */}

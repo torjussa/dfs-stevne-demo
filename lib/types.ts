@@ -86,7 +86,7 @@ export interface MembershipFormData {
   // Personal information
   firstName: string;
   lastName: string;
-  dateOfBirth: string;
+  nationalId: string;
   email: string;
   phone: string;
   address: string;
