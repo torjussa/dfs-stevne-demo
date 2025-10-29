@@ -1,14 +1,15 @@
 import { Clock, Coffee } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Exercise } from "@/app/create-event/page";
-import { Card } from "../ui/card";
+import { Exercise } from "@/app/opprett-arrangement/page";
+import { Card, CardContent } from "../ui/card";
+import { Badge } from "../ui/badge";
 
 type Props = {
   exercise: Exercise;
   eventDays: string[];
+  onSquadClick?: (squadIndex: number) => void;
 };
 
-export const PreviewSlots = ({ exercise, eventDays }: Props) => {
+export const PreviewSlots = ({ exercise, eventDays, onSquadClick }: Props) => {
   const calculateSquadTimes = (exercise: Exercise) => {
     const times: {
       squad: number;
@@ -78,12 +79,23 @@ export const PreviewSlots = ({ exercise, eventDays }: Props) => {
                   {squadTimes.map((slot) => (
                     <Card
                       key={`${slot.label}:${slot.squad}`}
-                      className={"overflow-hidden transition-all"}
+                      className={`overflow-hidden transition-all p-2 ${
+                        !slot.isBreak && onSquadClick
+                          ? "cursor-pointer hover:border-primary hover:bg-primary/5"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        if (!slot.isBreak && onSquadClick) {
+                          onSquadClick(slot.squad - 1);
+                        }
+                      }}
                     >
-                      <div
-                        className={`w-full cursor-pointer px-4 transition-colors py-2 flex items-center justify-between ${"bg-primary hover:bg-primary/90 text-primary-foreground"}`}
+                      <CardContent
+                        className={`w-full px-2 transition-colors flex justify-between ${
+                          !slot.isBreak && onSquadClick ? "cursor-pointer" : ""
+                        }`}
                       >
-                        <div className="flex justify-between w-full gap-3">
+                        <div className="flex justify-between w-full gap-3 items-center">
                           <p>
                             {slot.isBreak ? slot.label : `Lag ${slot.squad}`}
                           </p>
@@ -95,6 +107,24 @@ export const PreviewSlots = ({ exercise, eventDays }: Props) => {
                             )}
                             <span className="font-semibold">{slot.time}</span>
                           </div>
+                          {!slot.isBreak &&
+                            (() => {
+                              // Determine allowed classes: squad override -> exercise-level -> undefined (means all)
+                              const allowed =
+                                exercise.squads?.find(
+                                  (s) => s.index === slot.squad - 1
+                                )?.allowedClasses ?? exercise.allowedClasses;
+                              return (
+                                <Badge
+                                  variant={allowed ? "secondary" : "outline"}
+                                  className="text-xs"
+                                >
+                                  {allowed
+                                    ? `${allowed.length} klasser`
+                                    : "Alle klasser"}
+                                </Badge>
+                              );
+                            })()}
                           {/*  <Badge
                               variant="secondary"
                               className={`text-xs font-medium ${
@@ -111,7 +141,7 @@ export const PreviewSlots = ({ exercise, eventDays }: Props) => {
                               /{totalCount}
                             </Badge> */}
                         </div>
-                      </div>
+                      </CardContent>
                     </Card>
                   ))}
                 </div>

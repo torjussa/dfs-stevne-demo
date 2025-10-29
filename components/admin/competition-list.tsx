@@ -50,7 +50,7 @@ export function CompetitionList({ competitions }: CompetitionListProps) {
 
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild>
-              <Link href={`/competition/${competition.id}`}>
+              <Link href={`/arrangement/${competition.id}`}>
                 <Eye className="h-4 w-4" />
               </Link>
             </Button>

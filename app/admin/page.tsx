@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { AuthHeader } from "@/components/auth-header";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,21 +11,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Calendar, Users, Target } from "lucide-react";
+import { Tabs, TabsPanel, TabsList, TabsTab } from "@/components/ui/tabs";
+import { Plus, Calendar, Users } from "lucide-react";
 import Link from "next/link";
 import { mockCompetitions } from "@/lib/mock-data";
 import { CompetitionList } from "@/components/admin/competition-list";
-import { CreateCompetitionDialog } from "@/components/admin/create-competition-dialog";
 
 export default function AdminPage() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || !user?.isAdmin) {
-      router.push("/login");
+      router.push("/logg-inn");
     }
   }, [isAuthenticated, user, router]);
 
@@ -52,7 +49,6 @@ export default function AdminPage() {
                 Administrer stevner og reservasjoner
               </p>
             </div>
-            <AuthHeader />
           </div>
         </div>
       </header>
@@ -87,40 +83,24 @@ export default function AdminPage() {
               </p>
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Belegg</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {totalSlots
-                  ? Math.round((totalBookings / totalSlots) * 100)
-                  : 0}
-                %
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Gjennomsnittlig belegg
-              </p>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Main Content */}
         <Tabs defaultValue="competitions" className="space-y-6">
           <div className="flex items-center justify-between">
             <TabsList>
-              <TabsTrigger value="competitions">Stevner</TabsTrigger>
-              <TabsTrigger value="bookings">Reservasjoner</TabsTrigger>
+              <TabsTab value="competitions">Stevner</TabsTab>
+              <TabsTab value="bookings">Reservasjoner</TabsTab>
             </TabsList>
-            <Button onClick={() => setShowCreateDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nytt stevne
+            <Button asChild>
+              <Link href="/opprett-arrangement">
+                <Plus className="h-4 w-4 mr-2" />
+                Nytt stevne
+              </Link>
             </Button>
           </div>
 
-          <TabsContent value="competitions" className="space-y-4">
+          <TabsPanel value="competitions" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Alle stevner</CardTitle>
@@ -132,9 +112,9 @@ export default function AdminPage() {
                 <CompetitionList competitions={mockCompetitions} />
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsPanel>
 
-          <TabsContent value="bookings" className="space-y-4">
+          <TabsPanel value="bookings" className="space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle>Alle reservasjoner</CardTitle>
@@ -152,7 +132,7 @@ export default function AdminPage() {
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsPanel>
         </Tabs>
 
         <div className="mt-8">
@@ -161,11 +141,6 @@ export default function AdminPage() {
           </Button>
         </div>
       </div>
-
-      <CreateCompetitionDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-      />
     </div>
   );
 }

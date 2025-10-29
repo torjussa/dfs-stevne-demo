@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 
 import { EVENT_TEMPLATES } from "@/components/createEvent/Templates";
-import { ClassesSelect } from "@/components/createEvent/ClassesSelect";
 import {
   CardHeader,
   CardTitle,
@@ -40,8 +39,8 @@ export const EventInformation = ({
 }: Props) => {
   return (
     <>
-      <CardHeader className="bg-primary/5 py-4">
-        <CardTitle>Stevnedetaljer</CardTitle>
+      <CardHeader className=" ">
+        <CardTitle className="text-lg ">Stevnedetaljer</CardTitle>
         <CardDescription>
           {copiedEvent
             ? "Justér informasjonen fra det kopierte stevnet"
@@ -66,12 +65,12 @@ export const EventInformation = ({
             <Label htmlFor="organizer">
               Arrangør <span className="text-destructive">*</span>
             </Label>
-            <Select defaultValue="bæker">
+            <Select defaultValue="blaker">
               <SelectTrigger id="organizer">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="bæker">Bæker Skytterlag</SelectItem>
+                <SelectItem value="blaker">Blaker Skytterlag</SelectItem>
                 <SelectItem value="oslo">Oslo Skytterlag</SelectItem>
                 <SelectItem value="bergen">Bergen Skytterlag</SelectItem>
               </SelectContent>
@@ -83,7 +82,7 @@ export const EventInformation = ({
             <Input
               id="location"
               placeholder="Anleggsnavn"
-              defaultValue="Bæker Skyteanlegg"
+              defaultValue="Blaker Skyteanlegg"
             />
           </div>
 
@@ -144,7 +143,6 @@ export const EventInformation = ({
             }
           />
         </div>
-        <ClassesSelect selectedTemplate={selectedTemplate} />
       </CardContent>
     </>
   );

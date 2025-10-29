@@ -1,44 +1,49 @@
-import { CompetitionCard } from "@/components/competition-card";
-import { AuthHeader } from "@/components/auth-header";
-import { mockCompetitions } from "@/lib/mock-data";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { PlusIcon } from "lucide-react";
+import { Suspense } from "react";
+import {
+  getUpcomingEvents,
+  getEventStats,
+  getRecentNotifications,
+} from "@/lib/data";
+import { HeroSection } from "@/components/dashboard/hero-section";
+import { UpcomingEventsWidget } from "@/components/dashboard/upcoming-events-widget";
+import { StatsWidget } from "@/components/dashboard/stats-widget";
+import { NotificationsWidget } from "@/components/dashboard/notifications-widget";
+import { CalendarWidget } from "@/components/dashboard/calendar-widget";
+import { MyRegistrationsWidget } from "@/components/dashboard/my-registrations-widget";
+import { SidebarNavigationHandler } from "@/components/sidebar-navigation-handler";
+import { LoginWidget } from "@/components/dashboard/login-widget";
 
-export default function Home() {
+export default async function HomePage() {
+  const [upcoming, stats, notifications] = await Promise.all([
+    getUpcomingEvents(6),
+    getEventStats(),
+    getRecentNotifications(),
+  ]);
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <h1 className="text-2xl font-bold">Stevner</h1>
+    <div className="container mx-auto flex-1 gap-4 p-4 max-w-7xl space-y-4">
+      <HeroSection />
 
-              <Button asChild variant="ghost" size="sm">
-                <Link href="/create-event">
-                  <PlusIcon />
-                  Opprett event
-                </Link>
-              </Button>
-            </div>
-            <AuthHeader />
+      <div className="grid grid-cols-1 align-start md:grid-cols-7 xl:grid-cols-8 lg:grid-cols-9 gap-4">
+        <div className="xl:col-span-6 lg:col-span-6 md:col-span-4 space-y-4">
+          <div className="grid grid-cols-2  gap-4">
+            <LoginWidget />
+            <MyRegistrationsWidget />
+            <NotificationsWidget items={notifications} />
           </div>
+          <UpcomingEventsWidget events={upcoming} />
         </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <div className="mb-6">
-          <p className="text-muted-foreground">
-            Viser {mockCompetitions.length} stevner
-          </p>
+        {/* <div className="xl:col-span-2 lg:col-span-3 md:col-span-3 grid gap-4"> */}
+        <div className="xl:col-span-2 lg:col-span-3 md:col-span-3 flex md:flex-col gap-4">
+          <StatsWidget stats={stats} />
+          <CalendarWidget events={upcoming} />
         </div>
-
-        <div className="grid grid-cols-1 gap-6">
-          {mockCompetitions.map((competition) => (
-            <CompetitionCard key={competition.id} competition={competition} />
-          ))}
-        </div>
+        {/* </div> */}
       </div>
+
+      <Suspense>
+        <SidebarNavigationHandler />
+      </Suspense>
     </div>
   );
 }

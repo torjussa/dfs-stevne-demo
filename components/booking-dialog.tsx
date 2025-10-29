@@ -4,7 +4,6 @@ import type React from "react";
 
 import { useMemo, useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { SPECIAL_CLASSES, BASE_CLASSES } from "@/lib/utils";
 import {
   Calendar,
   MapPin,
@@ -17,7 +16,7 @@ import {
 } from "lucide-react";
 import {
   Dialog,
-  DialogContent,
+  DialogPopup,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -36,6 +35,7 @@ interface BookingDialogProps {
   time: string;
   date?: string;
   location?: string;
+  reservationExpiresAt?: number; // epoch ms for active reservation countdown
 }
 
 export function BookingDialog({
@@ -46,6 +46,7 @@ export function BookingDialog({
   time,
   date,
   location,
+  reservationExpiresAt,
 }: BookingDialogProps) {
   const { user } = useAuth();
   const [selectedClass, setSelectedClass] = useState<string>(
@@ -55,6 +56,7 @@ export function BookingDialog({
   const [selectedFriend, setSelectedFriend] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [remaining, setRemaining] = useState<number>(0);
 
   // Friends with their shooting classes
   const friendsData = useMemo(
@@ -143,16 +145,47 @@ export function BookingDialog({
     }
   }, [open]);
 
+  // Start/refresh countdown from reservationExpiresAt
+  useEffect(() => {
+    if (!open || !reservationExpiresAt) {
+      setRemaining(0);
+      return;
+    }
+    const tick = () => {
+      const secs = Math.max(
+        0,
+        Math.floor((reservationExpiresAt - Date.now()) / 1000)
+      );
+      setRemaining(secs);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [open, reservationExpiresAt]);
+
+  const formatCountdown = (secs: number) => {
+    const m = String(Math.floor(secs / 60)).padStart(2, "0");
+    const s = String(secs % 60).padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogPopup>
         <DialogHeader>
           <DialogTitle>Bekreft reservasjon</DialogTitle>
           <DialogDescription>
-            Du er i ferd med å reservere følgende tidspunkt:
+            Du er i ferd med å reservere følgende tidspunkt.
           </DialogDescription>
+          {remaining > 0 && (
+            <div className="mb-4">
+              <span className="inline-flex items-center gap-2 rounded-full border bg-amber-50 text-amber-900 border-amber-200 px-3 py-1 text-sm font-medium">
+                <Clock className="h-4 w-4" />
+                Holder av plass: {formatCountdown(remaining)}
+              </span>
+            </div>
+          )}
         </DialogHeader>
-
         {/* Structured booking details */}
         <div className="bg-muted/50 border border-muted-foreground/20 rounded-lg p-5 mb-4">
           <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3">
@@ -365,21 +398,21 @@ export function BookingDialog({
                   )}
                 </Button>
               </div>
-              <DialogFooter className="pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                  disabled={isLoading}
-                  className="h-11 w-full"
-                >
-                  Avbryt
-                </Button>
-              </DialogFooter>
             </>
           )}
         </form>
-      </DialogContent>
+        <DialogFooter className="pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+            className="h-11 w-full"
+          >
+            Avbryt
+          </Button>
+        </DialogFooter>
+      </DialogPopup>
     </Dialog>
   );
 }
